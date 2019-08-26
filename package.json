@@ -1,0 +1,73 @@
+{
+  "name": "streamline",
+  "description": "Captura de Multimedia en Vivo para Streaming Adaptativo",
+  "version": "1.0.0",
+  "homepage": "https://streamline.rolandostar.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rolandostar/Streamline"
+  },
+  "license": "BSD-3-Clause",
+  "main": "src",
+  "author": "Rolando Romero <contact@rolandostar.com> (https://rolandostar.com/)",
+  "bugs": {
+    "url": "https://github.com/rolandostar/Streamline/issues"
+  },
+  "directories": {
+    "lib": "src/",
+    "config": "config/",
+    "doc": "doc/"
+  },
+  "engines": {
+    "node": "^10.16.0",
+    "npm": ">= 6.9.0"
+  },
+  "scripts": {
+    "start": "node -r dotenv/config src/",
+    "dev": "nodemon --inspect -r dotenv/config src/",
+    "lint": "eslint src/ --config .eslintrc.json"
+  },
+  "dependencies": {
+    "bcrypt": "^3.0.6",
+    "config": "^3.2.2",
+    "dotenv": "^8.1.0",
+    "ejs": "^2.6.2",
+    "fast-json-parse": "^1.0.3",
+    "fastify": "^2.7.1",
+    "fastify-chalk": "^0.1.2",
+    "fastify-cors": "^2.1.3",
+    "fastify-helmet": "^3.0.1",
+    "fastify-jwt": "^1.0.0",
+    "fastify-plugin": "^1.6.0",
+    "fastify-sensible": "^2.1.1",
+    "fastify-static": "^2.5.0",
+    "handlebars": "^4.1.2",
+    "joi": "^14.3.1",
+    "point-of-view": "^3.5.0",
+    "sequelize": "^5.16.0",
+    "sqlite3": "^4.1.0"
+  },
+  "devDependencies": {
+    "apidoc": "^0.17.7",
+    "eslint": "^6.2.2",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "javascript-obfuscator": "^0.18.1",
+    "pino-pretty": "^3.2.1",
+    "sequelize-cli": "^5.5.0"
+  },
+  "optionalDependencies": {
+    "fsevents": "*"
+  },
+  "apidoc": {
+    "name": "Streamline",
+    "version": "1.0.0",
+    "description": "Captura de Multimedia en Vivo para Streaming Adaptativo",
+    "apidoc": {
+      "title": "Streamline API Documentación",
+      "url": "https://streamline.rolandostar.com/apidocs/v1"
+    }
+  }
+}
