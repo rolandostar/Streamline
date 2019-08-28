@@ -1,4 +1,80 @@
-body {
+/* Hide scrollbar and fix modal */
+
+html {
+  overflow: scroll;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #FF0000;
+}
+.modal-open[style] {
+  padding-right: 0px !important;
+}
+
+/* ---------------------------------- Login --------------------------------- */
+.card-signin {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-signin .card-title {
+  margin-bottom: 2rem;
+  font-weight: 300;
+  font-size: 1.5rem;
+}
+
+.card-signin .card-body {
+  padding: 2rem;
+}
+
+.form-signin {
+  width: 100%;
+}
+
+.btn-submit {
+  font-size: 80%;
+  border-radius: 5rem;
+  letter-spacing: .1rem;
+  font-weight: bold;
+  transition: all 0.2s;
+  margin-right: 1em;
+}
+
+.logo {
+  margin: 0 auto;
+  margin-top: 5em;
+  max-height: 20vh;
+}
+
+/* -------------------------------- Dashboard ------------------------------- */
+
+.fab {
+  background: #03A9F4;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  color: #FFF;
+  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.5), 3px 3px 3px rgba(0, 0, 0, 0.25);
+  position: fixed;
+  bottom: 1em;
+  right: 1em;
+  font-size: 2.6667em;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1;
+}
+.fab span {
+  align-self: center;
+  margin: 0 auto;
+  font-weight: bolder;
+}
+.dashboard {
   padding-top: 70px;
 }
 
@@ -16,6 +92,11 @@ body {
   box-shadow: none;
 }
 
+.btn-account:hover {
+  filter: brightness(150%);
+  transition: 0.3s;
+}
+
 .btn.search {
   color: #4e5d6c;
   background-color: white;
@@ -26,37 +107,69 @@ body {
   background-color: #4e5d6c;
 }
 
-.box img {
-  max-width: 100%;
+.btn-add {
+  color: white;
+  position: fixed;
+  right: 1em;
+  bottom: 0;
+  z-index: 1030;
+  background-color: purple;
+  border-radius: 50%;
+  height: 1em;
+  width: 1em;
 }
 
-.box {
+.grid {
   display: grid;
   grid-gap: 20px;
   grid-template-columns: repeat(4, minmax(100px, 1fr));
 }
 
-.box a {
-  transition: transform .3s;
-}
-
-.box a:hover {
-  transition: transform .3s;
-  -ms-transform: scale(1.4);
-  -webkit-transform: scale(1.4);
-  transform: scale(1.4);
-}
-
-.box img {
+.grid img {
   border-radius: 2px;
+  transition: transform .3s;
+  max-width: 100%;
 }
 
+.thumbnail {
+  transition: transform .2s;
+  position: relative;
+  color: white;
+}
 
+.thumbnail:hover {
+  transition: transform .3s;
+  -ms-transform: scale(1.2);
+  -webkit-transform: scale(1.2);
+  transform: scale(1.2);
+  color: white;
+}
+
+.thumbnail-title{
+  position: absolute;
+  background-color: #00000099;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 100%;
+  max-width: 290px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 40%;
+  padding: 5px;
+}
+
+.footer {
+  margin: 50px 0 20px 0;
+  line-height: 20%;
+}
 
 /* MEDIA QUERIES */
 
 @media(max-width: 900px) {
-  .box {
+  .grid {
     display: grid;
     grid-gap: 20px;
     grid-template-columns: repeat(3, minmax(100px, 1fr));
@@ -64,7 +177,7 @@ body {
 }
 
 @media(max-width: 700px) {
-  .box {
+  .grid {
     display: grid;
     grid-gap: 20px;
     grid-template-columns: repeat(3, minmax(100px, 1fr));
@@ -73,19 +186,18 @@ body {
 }
 
 @media(max-width: 500px) {
-  .box {
+  .grid {
     display: grid;
     grid-gap: 20px;
     grid-template-columns: repeat(1, 1fr);
     text-align: center;
   }
 
-  .box a:hover {
+  .grid a:hover {
     transition: transform .3s;
     -ms-transform: scale(1);
     -webkit-transform: scale(1);
     transform: scale(1.2);
   }
-
 
 }

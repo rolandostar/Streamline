@@ -16,7 +16,8 @@ fastify
     options: {
       partials: {
         header: 'include/header.hbs',
-        footer: 'include/footer.hbs'
+        footer: 'include/footer.hbs',
+        nav: 'include/nav.hbs'
       }
     }
   })

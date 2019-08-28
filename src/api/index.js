@@ -1,5 +1,5 @@
 module.exports = function (fastify, opts, done) {
-  fastify.log.info('API\t', fastify.chalk.green('LOADED'))
+  fastify.log.info('ROUTES\t[%s]', fastify.chalk.green('REGISTERED'))
   //fastify.get('/user', handler_v1)
   fastify.get('/test', () => {})
   done()
