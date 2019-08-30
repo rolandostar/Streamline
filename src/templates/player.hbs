@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Streamline - {{videoTitle}}</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+	<style>
+		.videoContainer {
+		  position: absolute;
+		  top: 0;
+		  left: 0;
+		  width: 100%;
+		  height: 100%;
+		  background-color: #000;
+		}
+
+		video {
+		  display: block;
+		  width: 100%;
+		  height: 100%;
+		}
+
+		.videoContainer .overlay {
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0px;
+      left: 0px;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transition: 0.3s;
+      z-index: 1;
+    }
+
+    .videoContainer .overlay:hover {
+        opacity: 1;
+    }
+
+    #progressBar {
+   border:1px solid #aaa;
+   color:#fff;
+   width:295px;
+   height:20px;
+}
+#progress {
+   background-color: red;
+   height:20px;
+   display:inline-block;
+}
+input[type=range].slider {
+  -webkit-appearance: none;
+  width: 100%;
+  margin: 6.5px 0;
+}
+input[type=range].slider:focus {
+  outline: none;
+}
+input[type=range].slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  box-shadow: 0px 0px 4.1px #ffffff, 0px 0px 0px #ffffff;
+  background: #8f99a2;
+  border-radius: 25px;
+  border: 1.3px solid rgba(171, 171, 171, 0.5);
+}
+input[type=range].slider::-webkit-slider-thumb {
+  box-shadow: 0px 0px 8.3px #000000, 0px 0px 0px #0d0d0d;
+  border: 1px solid #000000;
+  height: 18px;
+  width: 18px;
+  border-radius: 25px;
+  background: rgba(124, 43, 231, 0.93);
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -7.8px;
+}
+input[type=range].slider:focus::-webkit-slider-runnable-track {
+  background: #8f99a2;
+}
+input[type=range].slider::-moz-range-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  box-shadow: 0px 0px 4.1px #ffffff, 0px 0px 0px #ffffff;
+  background: #8f99a2;
+  border-radius: 25px;
+  border: 1.3px solid rgba(171, 171, 171, 0.5);
+}
+input[type=range].slider::-moz-range-thumb {
+  box-shadow: 0px 0px 8.3px #000000, 0px 0px 0px #0d0d0d;
+  border: 1px solid #000000;
+  height: 18px;
+  width: 18px;
+  border-radius: 25px;
+  background: rgba(124, 43, 231, 0.93);
+  cursor: pointer;
+}
+input[type=range].slider::-ms-track {
+  width: 100%;
+  height: 5px;
+  cursor: pointer;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+input[type=range].slider::-ms-fill-lower {
+  background: #8f99a2;
+  border: 1.3px solid rgba(171, 171, 171, 0.5);
+  border-radius: 50px;
+  box-shadow: 0px 0px 4.1px #ffffff, 0px 0px 0px #ffffff;
+}
+input[type=range].slider::-ms-fill-upper {
+  background: #8f99a2;
+  border: 1.3px solid rgba(171, 171, 171, 0.5);
+  border-radius: 50px;
+  box-shadow: 0px 0px 4.1px #ffffff, 0px 0px 0px #ffffff;
+}
+input[type=range].slider::-ms-thumb {
+  box-shadow: 0px 0px 8.3px #000000, 0px 0px 0px #0d0d0d;
+  border: 1px solid #000000;
+  height: 18px;
+  width: 18px;
+  border-radius: 25px;
+  background: rgba(124, 43, 231, 0.93);
+  cursor: pointer;
+  height: 5px;
+}
+input[type=range].slider:focus::-ms-fill-lower {
+  background: #8f99a2;
+}
+input[type=range].slider:focus::-ms-fill-upper {
+  background: #8f99a2;
+}
+
+
+	</style>
+</head>
+
+<body>
+	<div class="videoContainer">
+		<div class="overlay">
+      <button id="playpause" title="play" onclick="togglePlayPause()">Play</button>
+      <input class="slider" id="volume" min="0" max="1" step="0.01" type="range" onchange="setVolume()" />
+      <button id="mute" onclick="toggleMute()">Mute</button>
+      <div id="progressBar"><span id="progress"></span></div>
+    </div>
+		<video controls id="player" data-dashjs-player src="https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd">
+	</div>
+	</div>
+	<script src="js/jquery.min.js"></script>
+	<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+	<script src="https://raw.githubusercontent.com/davatron5000/FitVids.js/master/jquery.fitvids.js"></script>
+	<script>
+		// Hide mouse cursor and overlay on inactivity
+    var timer;
+    var fadeInBuffer = false;
+    $(document).mousemove(function() {
+        if (!fadeInBuffer) {
+            if (timer) {
+                clearTimeout(timer);
+                timer = 0;
+            }
+            $('html').css({ cursor: '' });
+        } else {
+            $('.videoContainer').css({ cursor: 'default' });
+            $('.overlay').css({ opacity: 1 })
+            fadeInBuffer = false;
+        }
+
+        timer = setTimeout(function() {
+            $('.videoContainer').css({ cursor: 'none' });
+            $('.overlay').css({ opacity: 0 })
+            fadeInBuffer = true;
+        }, 2000)
+    });
+    $('.videoContainer').css({ cursor: 'default' });
+	</script>
+  <script>
+    var video = document.getElementById("player");
+    video.addEventListener("timeupdate", updateProgress, false);
+    video.controls = false;
+
+    function updateProgress() {
+      var progress = document.getElementById("progress");
+      var value = 0;
+      if (video.currentTime > 0) {
+          value = Math.floor((100 / video.duration) * video.currentTime);
+      }
+      console.log(value)
+      progress.style.width = value + "%";
+    }
+
+    function toggleMute() {
+      video.muted = !video.muted;
+    }
+
+    function setVolume() {
+      var volume = document.getElementById("volume");
+      video.volume = volume.value;
+    }
+
+    video.addEventListener('play', function() {
+   var playpause = document.getElementById("playpause");
+   playpause.title = "pause";
+   playpause.innerHTML = "pause";
+}, false);
+video.addEventListener('pause', function() {
+   var playpause = document.getElementById("playpause");
+   playpause.title = "play";
+   playpause.innerHTML = "play";
+}, false);
+
+video.addEventListener('ended', function() { this.pause(); }, false);
+
+    function togglePlayPause() {
+      var playpause = document.getElementById("playpause");
+      if (video.paused || video.ended) {
+          playpause.title = "pause";
+          playpause.innerHTML = "pause";
+          video.play();
+      }
+      else {
+          playpause.title = "play";
+          playpause.innerHTML = "play";
+          video.pause();
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -10,5 +10,9 @@ module.exports = function (fastify, opts, done) {
       reply.view('login.hbs', {})
     })
 
+    .get('/playback', (req, reply) => {
+      reply.view('player.hbs', {})
+    })
+
   done()
 }
