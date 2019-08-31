@@ -6,229 +6,56 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Streamline - {{videoTitle}}</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
-	<style>
-		.videoContainer {
-		  position: absolute;
-		  top: 0;
-		  left: 0;
-		  width: 100%;
-		  height: 100%;
-		  background-color: #000;
-		}
-
-		video {
-		  display: block;
-		  width: 100%;
-		  height: 100%;
-		}
-
-		.videoContainer .overlay {
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0px;
-      left: 0px;
-      background: rgba(0, 0, 0, 0.5);
-      opacity: 0;
-      transition: 0.3s;
-      z-index: 1;
-    }
-
-    .videoContainer .overlay:hover {
-        opacity: 1;
-    }
-
-    #progressBar {
-   border:1px solid #aaa;
-   color:#fff;
-   width:295px;
-   height:20px;
-}
-#progress {
-   background-color: red;
-   height:20px;
-   display:inline-block;
-}
-input[type=range].slider {
-  -webkit-appearance: none;
-  width: 100%;
-  margin: 6.5px 0;
-}
-input[type=range].slider:focus {
-  outline: none;
-}
-input[type=range].slider::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 5px;
-  cursor: pointer;
-  box-shadow: 0px 0px 4.1px #ffffff, 0px 0px 0px #ffffff;
-  background: #8f99a2;
-  border-radius: 25px;
-  border: 1.3px solid rgba(171, 171, 171, 0.5);
-}
-input[type=range].slider::-webkit-slider-thumb {
-  box-shadow: 0px 0px 8.3px #000000, 0px 0px 0px #0d0d0d;
-  border: 1px solid #000000;
-  height: 18px;
-  width: 18px;
-  border-radius: 25px;
-  background: rgba(124, 43, 231, 0.93);
-  cursor: pointer;
-  -webkit-appearance: none;
-  margin-top: -7.8px;
-}
-input[type=range].slider:focus::-webkit-slider-runnable-track {
-  background: #8f99a2;
-}
-input[type=range].slider::-moz-range-track {
-  width: 100%;
-  height: 5px;
-  cursor: pointer;
-  box-shadow: 0px 0px 4.1px #ffffff, 0px 0px 0px #ffffff;
-  background: #8f99a2;
-  border-radius: 25px;
-  border: 1.3px solid rgba(171, 171, 171, 0.5);
-}
-input[type=range].slider::-moz-range-thumb {
-  box-shadow: 0px 0px 8.3px #000000, 0px 0px 0px #0d0d0d;
-  border: 1px solid #000000;
-  height: 18px;
-  width: 18px;
-  border-radius: 25px;
-  background: rgba(124, 43, 231, 0.93);
-  cursor: pointer;
-}
-input[type=range].slider::-ms-track {
-  width: 100%;
-  height: 5px;
-  cursor: pointer;
-  background: transparent;
-  border-color: transparent;
-  color: transparent;
-}
-input[type=range].slider::-ms-fill-lower {
-  background: #8f99a2;
-  border: 1.3px solid rgba(171, 171, 171, 0.5);
-  border-radius: 50px;
-  box-shadow: 0px 0px 4.1px #ffffff, 0px 0px 0px #ffffff;
-}
-input[type=range].slider::-ms-fill-upper {
-  background: #8f99a2;
-  border: 1.3px solid rgba(171, 171, 171, 0.5);
-  border-radius: 50px;
-  box-shadow: 0px 0px 4.1px #ffffff, 0px 0px 0px #ffffff;
-}
-input[type=range].slider::-ms-thumb {
-  box-shadow: 0px 0px 8.3px #000000, 0px 0px 0px #0d0d0d;
-  border: 1px solid #000000;
-  height: 18px;
-  width: 18px;
-  border-radius: 25px;
-  background: rgba(124, 43, 231, 0.93);
-  cursor: pointer;
-  height: 5px;
-}
-input[type=range].slider:focus::-ms-fill-lower {
-  background: #8f99a2;
-}
-input[type=range].slider:focus::-ms-fill-upper {
-  background: #8f99a2;
-}
-
-
-	</style>
+  <link rel="stylesheet" href="css/streamlinePlayer.css">
 </head>
-
 <body>
-	<div class="videoContainer">
-		<div class="overlay">
-      <button id="playpause" title="play" onclick="togglePlayPause()">Play</button>
-      <input class="slider" id="volume" min="0" max="1" step="0.01" type="range" onchange="setVolume()" />
-      <button id="mute" onclick="toggleMute()">Mute</button>
-      <div id="progressBar"><span id="progress"></span></div>
+	<div class='player'>
+    <video id="video" playsinline data-dashjs-player src="https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd"></video>
+    <div class='controls'>
+      <a class="arrow-back" href="/">
+<svg height="32px" viewBox="0 0 32 32" width="32px" fill="white"><path d="M28,14H8.8l4.62-4.62C13.814,8.986,14,8.516,14,8c0-0.984-0.813-2-2-2c-0.531,0-0.994,0.193-1.38,0.58l-7.958,7.958  C2.334,14.866,2,15.271,2,16s0.279,1.08,0.646,1.447l7.974,7.973C11.006,25.807,11.469,26,12,26c1.188,0,2-1.016,2-2  c0-0.516-0.186-0.986-0.58-1.38L8.8,18H28c1.104,0,2-0.896,2-2S29.104,14,28,14z"/></svg>
+      </a>
+      <div class="time"><span class="time-current"></span><span class="time-total"></span></div>
+      <div class='progress'>
+        <div class='progress-filled'></div>
+      </div>
+			<div class='controls-main'>
+				<div class='controls-left'>
+					<div class='volume'>
+						<div class='volume-btn loud'>
+							<svg width="26" height="24" viewBox="0 0 26 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<path d="M6.75497 17.6928H2C0.89543 17.6928 0 16.7973 0 15.6928V8.30611C0 7.20152 0.895431 6.30611 2 6.30611H6.75504L13.9555 0.237289C14.6058 -0.310807 15.6 0.151473 15.6 1.00191V22.997C15.6 23.8475 14.6058 24.3098 13.9555 23.7617L6.75497 17.6928Z" transform="translate(0 0.000518799)" fill="white"/>
+								<path id="volume-low" d="M0 9.87787C2.87188 9.87787 5.2 7.66663 5.2 4.93893C5.2 2.21124 2.87188 0 0 0V2C1.86563 2 3.2 3.41162 3.2 4.93893C3.2 6.46625 1.86563 7.87787 0 7.87787V9.87787Z" transform="translate(17.3333 7.44955)" fill="white"/>
+
+								<path id="volume-high" d="M0 16.4631C4.78647 16.4631 8.66667 12.7777 8.66667 8.23157C8.66667 3.68539 4.78647 0 0 0V2C3.78022 2 6.66667 4.88577 6.66667 8.23157C6.66667 11.5773 3.78022 14.4631 0 14.4631V16.4631Z" transform="translate(17.3333 4.15689)" fill="white"/>
+						    <path id="volume-off" d="M1.22565 0L0 1.16412L3.06413 4.0744L0 6.98471L1.22565 8.14883L4.28978 5.23853L7.35391 8.14883L8.57956 6.98471L5.51544 4.0744L8.57956 1.16412L7.35391 0L4.28978 2.91031L1.22565 0Z" transform="translate(17.3769 8.31403)" fill="white"/>
+							</svg>
+						</div>
+						<div class='volume-slider'>
+							<div class='volume-filled'></div>
+						</div>
+					</div>
+				</div>
+        <div class='skip-btn rew'><span id='rew-bg'></span>10</div>
+				<div class='play-btn paused'></div>
+        <div class='skip-btn ffw'><span id='ffw-bg'></span>10</div>
+				<div class="controls-right">
+          <div class="pip">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="22" fill="white" viewBox="0 0 30 22">
+              <path d="M 24.650844,4.8226471 H 13.694915 v 7.3722549 h 10.955929 z m 2.738984,-4.91483498 H 2.7389828 C 1.2256948,-0.09218788 0,1.0075066 0,2.36523 v 17.201924 c 0,1.357725 1.2256948,2.432845 2.7389828,2.432845 H 27.389828 c 1.513287,0 2.738982,-1.081264 2.738982,-2.432845 V 2.36523 c 0,-1.3577234 -1.225695,-2.45741788 -2.738982,-2.45741788 z m 0,19.67777388 H 2.7389828 V 2.3467993 H 27.389828 Z">
+            </svg>
+          </div>
+					<div class='fullscreen'>
+						<svg width="30" height="22" viewBox="0 0 30 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+	            <path d="M0 0V-1.5H-1.5V0H0ZM0 18H-1.5V19.5H0V18ZM26 18V19.5H27.5V18H26ZM26 0H27.5V-1.5H26V0ZM1.5 6.54545V0H-1.5V6.54545H1.5ZM0 1.5H10.1111V-1.5H0V1.5ZM-1.5 11.4545V18H1.5V11.4545H-1.5ZM0 19.5H10.1111V16.5H0V19.5ZM24.5 11.4545V18H27.5V11.4545H24.5ZM26 16.5H15.8889V19.5H26V16.5ZM27.5 6.54545V0H24.5V6.54545H27.5ZM26 -1.5H15.8889V1.5H26V-1.5Z" transform="translate(2 2)" fill="white"/>
+          	</svg>
+			    </div>
+		    </div>
+	    </div>
     </div>
-		<video controls id="player" data-dashjs-player src="https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd">
-	</div>
-	</div>
+  </div>
 	<script src="js/jquery.min.js"></script>
 	<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-	<script src="https://raw.githubusercontent.com/davatron5000/FitVids.js/master/jquery.fitvids.js"></script>
-	<script>
-		// Hide mouse cursor and overlay on inactivity
-    var timer;
-    var fadeInBuffer = false;
-    $(document).mousemove(function() {
-        if (!fadeInBuffer) {
-            if (timer) {
-                clearTimeout(timer);
-                timer = 0;
-            }
-            $('html').css({ cursor: '' });
-        } else {
-            $('.videoContainer').css({ cursor: 'default' });
-            $('.overlay').css({ opacity: 1 })
-            fadeInBuffer = false;
-        }
-
-        timer = setTimeout(function() {
-            $('.videoContainer').css({ cursor: 'none' });
-            $('.overlay').css({ opacity: 0 })
-            fadeInBuffer = true;
-        }, 2000)
-    });
-    $('.videoContainer').css({ cursor: 'default' });
-	</script>
-  <script>
-    var video = document.getElementById("player");
-    video.addEventListener("timeupdate", updateProgress, false);
-    video.controls = false;
-
-    function updateProgress() {
-      var progress = document.getElementById("progress");
-      var value = 0;
-      if (video.currentTime > 0) {
-          value = Math.floor((100 / video.duration) * video.currentTime);
-      }
-      console.log(value)
-      progress.style.width = value + "%";
-    }
-
-    function toggleMute() {
-      video.muted = !video.muted;
-    }
-
-    function setVolume() {
-      var volume = document.getElementById("volume");
-      video.volume = volume.value;
-    }
-
-    video.addEventListener('play', function() {
-   var playpause = document.getElementById("playpause");
-   playpause.title = "pause";
-   playpause.innerHTML = "pause";
-}, false);
-video.addEventListener('pause', function() {
-   var playpause = document.getElementById("playpause");
-   playpause.title = "play";
-   playpause.innerHTML = "play";
-}, false);
-
-video.addEventListener('ended', function() { this.pause(); }, false);
-
-    function togglePlayPause() {
-      var playpause = document.getElementById("playpause");
-      if (video.paused || video.ended) {
-          playpause.title = "pause";
-          playpause.innerHTML = "pause";
-          video.play();
-      }
-      else {
-          playpause.title = "play";
-          playpause.innerHTML = "play";
-          video.pause();
-      }
-    }
-  </script>
+	<script src="js/streamlinePlayer.js"></script>
 </body>
-
 </html>
