@@ -4,6 +4,7 @@ const fastify = require('fastify')({ logger: config.logger })
 /* ------------------------------- Middlewares ------------------------------ */
 
 fastify
+  .register(require('fastify-cookie'))
   .register(require('fastify-sensible')) // Sensible
   .register(require('fastify-helmet')) // Optimized Helmet
   .register(require('fastify-cors')) // Cross-Origin Resource Sharing
@@ -16,7 +17,6 @@ fastify
     options: {
       partials: {
         header: 'include/header.hbs',
-        footer: 'include/footer.hbs',
         nav: 'include/nav.hbs'
       }
     }
@@ -26,10 +26,11 @@ fastify
     decorateReply: false
   })
 /* --------------------------- Custom Middlewares --------------------------- */
-  .register(require('./database')) // Sequelize
+  .register(require('./database'))
+  .register(require('./auth'))
 /* --------------------------------- Routes --------------------------------- */
-  .register(require('./api'), { prefix: '/api' })
-  .register(require('./routes'), { prefix: '/' })
+  .register(require('./routes/views'))
+  .register(require('./routes/api'), { prefix: '/api' })
 /* ------------------------------ Error Handler ----------------------------- */
   .setErrorHandler(function (error, request, reply) {
     request.log.warn(error)

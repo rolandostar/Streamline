@@ -1,4 +1,5 @@
 const Joi = require('joi')
+const sequelizerc = require('../.sequelizeConfig')
 
 const envVarsSchema = Joi.object({
   NODE_ENV: Joi.string().required()
@@ -8,12 +9,13 @@ const envVarsSchema = Joi.object({
   JWT_SECRET: Joi.string().required()
 }).unknown().required()
 
-const { error, value: envVars } = Joi.validate(process.env, envVarsSchema)
+const { error, value: validatedData } = Joi.validate(process.env, envVarsSchema)
 if (error) throw new Error(`'Config validation error: ${error.message}`)
 
 module.exports = {
-  host: envVars.HOST,
-  port: envVars.PORT,
-  environment: envVars.NODE_ENV,
+  host: validatedData.HOST,
+  port: validatedData.PORT,
+  environment: validatedData.NODE_ENV,
+  database: sequelizerc[validatedData.NODE_ENV],
   logger: { redact: ['req.headers.authorization'] }
 }

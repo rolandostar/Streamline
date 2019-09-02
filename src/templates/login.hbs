@@ -1,32 +1,79 @@
 {{> header }}
-<div class="container">
-  <div class="row">
-    <img src="/img/streamline_logo.png" alt="Streamline Logo" class="img-fluid logo">
-  </div>
-    <div class="row">
-      <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
-        <div class="card card-signin my-5">
-          <div class="card-body">
-            <form>
-              <div class="form-group row">
-                <label for="inputEmail3" class="col-sm-4 col-form-label text-right">Username</label>
-                <div class="col-sm-8">
-                  <input type="email" class="form-control" id="inputEmail3">
-                </div>
+    <div class="container">
+      <div class="row">
+        <img src="/img/streamline_logo.png" alt="Streamline Logo" class="img-fluid logo">
+      </div>
+        <div class="row">
+          <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+            <div class="my-5"></div>
+            <div class="alert alert-danger collapse" role="alert">
+              Usuario/Contraseña incorrectos
+              <button type="button" class="close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="card card-signin">
+              <div class="card-body">
+                <form id="login-form">
+                  <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-4 col-form-label text-right">Usuario</label>
+                    <div class="col-sm-8">
+                      <input name="username" type="email" class="form-control" id="inputEmail3">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="inputPassword3" class="col-sm-4 col-form-label text-right">Contraseña</label>
+                    <div class="col-sm-8">
+                      <input name="password" type="password" class="form-control" id="inputPassword3">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                      <button id="login-btn" type="submit" class="btn btn-lg btn-primary text-uppercase ml-auto btn-submit">Entrar</button>
+                  </div>
+                </form>
               </div>
-              <div class="form-group row">
-                <label for="inputPassword3" class="col-sm-4 col-form-label text-right">Password</label>
-                <div class="col-sm-8">
-                  <input type="password" class="form-control" id="inputPassword3">
-                </div>
-              </div>
-              <div class="form-group row">
-                  <button type="submit" class="btn btn-lg btn-primary text-uppercase ml-auto btn-submit">Entrar</button>
-              </div>
-            </form>
-          </div>
+            </div>
         </div>
       </div>
     </div>
-</div>
-{{> footer }}
+    <div class="container">
+      <div class="row footer">
+        <div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-2 text-center text-muted">
+          <p>Streamline tiene licencia bajo BSD-3-Clause</p>
+          <p class="h6">&copy<a class="text-green ml-2" href="https://rolandostar.com" target="_blank">Rolando Romero</a></p>
+        </div>
+        </hr>
+      </div>
+    </div>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+      $("div.alert").on("click", "button.close", function() {
+        $(this).parent().animate({opacity: 0}, 300).hide('slow')
+      })
+      $('button#login-btn').on('click', function(event){
+        event.preventDefault()
+        const data = $("form").serializeArray()
+        $.ajax({
+          url: '/login',
+          type: 'POST',
+          dataType: 'json',
+          contentType: 'application/json',
+          data: JSON.stringify(data),
+          success: (response, status) => {
+            console.log('success')
+          },
+          error: (response, status) => {
+            console.log('error')
+          },
+          complete: (response, status) => {
+            console.log(response)
+            console.log(status)
+          }
+        })
+        $('.alert').css('opacity', 1).slideDown()
+      })
+    </script>
+  </body>
+</html>
+

@@ -14,5 +14,9 @@ module.exports = function (fastify, opts, done) {
       reply.view('player.hbs', {})
     })
 
+    .get('/account', (req, reply) => {
+      reply.view('account.hbs', {})
+    })
+
   done()
 }
