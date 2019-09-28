@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // ELEMENT SELECTORS
 var player = document.querySelector('.player')
 var video = document.querySelector('#video')
@@ -19,7 +20,7 @@ let fadeInBuffer = false
 
 // Hide mouse cursor and overlay on inactivity
 
-function activity() {
+function activity () {
   if (!fadeInBuffer) {
     if (timer) {
       clearTimeout(timer)
@@ -37,7 +38,7 @@ function activity() {
     fadeInBuffer = true
   }, 2000)
 }
-$('.player').css({ cursor: 'default' });
+$('.player').css({ cursor: 'default' })
 activity()
 
 // PLAYER FUNCTIONS
@@ -68,14 +69,14 @@ function toggleMute () {
 function changeVolume (e) {
   volumeBtn.classList.remove('muted')
   let volume = e.offsetX / volumeSlider.offsetWidth
-  volume < 0.1 ? volume = 0 : volume = volume
+  volume = volume < 0.1 ? 0 : volume
   volumeFill.style.width = `${volume * 100}%`
   video.volume = volume
   if (volume > 0.7) {
     volumeBtn.classList.add('loud')
   } else if (volume < 0.7 && volume > 0) {
     volumeBtn.classList.remove('loud')
-  } else if (volume == 0) {
+  } else if (volume === 0) {
     volumeBtn.classList.add('muted')
   }
   lastVolume = volume

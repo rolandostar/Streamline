@@ -19,7 +19,10 @@ function fastifySequelize (fastify, _options, done) {
   })
 
   // Connect to Database
-  config = { ...config, logging: function () { fastify.log.debug.apply(fastify.log, arguments) } }
+  config = {
+    ...config,
+    logging: function () { fastify.log.debug.apply(fastify.log, arguments) }
+  }
   try {
     if (config.use_env_variable) {
       fastify.decorate('sequelize', new Sequelize(process.env[config.use_env_variable], config))
@@ -51,6 +54,7 @@ function fastifySequelize (fastify, _options, done) {
     fastify.log.error('SYSTEM MODELS\t[%s]', fastify.chalk.red('ERROR'))
     done(err)
   }
+  //fastify.sequelize.sync({ force: true }).then(() => done())
   done()
 }
 

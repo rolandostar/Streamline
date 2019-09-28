@@ -2,11 +2,13 @@
 
 module.exports = function (fastify, opts, done) {
   fastify
-    .get('/', (req, reply) => {
-      reply.view('dashboard.hbs', { text: 'Hello World' })
+    .get('/', {
+    }, (req, reply) => {
+      reply.view('dashboard.hbs', {})
     })
 
-    .get('/login', (req, reply) => {
+    .get('/login', {
+    }, (req, reply) => {
       reply.view('login.hbs', {})
     })
 

@@ -1,4 +1,16 @@
-{{> header }}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Streamline{{subtitle}}</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
     <div class="container">
       <div class="row">
         <img src="/img/streamline_logo.png" alt="Streamline Logo" class="img-fluid logo">
@@ -47,33 +59,7 @@
     </div>
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script>
-      $("div.alert").on("click", "button.close", function() {
-        $(this).parent().animate({opacity: 0}, 300).hide('slow')
-      })
-      $('button#login-btn').on('click', function(event){
-        event.preventDefault()
-        const data = $("form").serializeArray()
-        $.ajax({
-          url: '/login',
-          type: 'POST',
-          dataType: 'json',
-          contentType: 'application/json',
-          data: JSON.stringify(data),
-          success: (response, status) => {
-            console.log('success')
-          },
-          error: (response, status) => {
-            console.log('error')
-          },
-          complete: (response, status) => {
-            console.log(response)
-            console.log(status)
-          }
-        })
-        $('.alert').css('opacity', 1).slideDown()
-      })
-    </script>
+    <script src="js/streamline/login.js"></script>
   </body>
 </html>
 

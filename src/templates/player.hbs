@@ -7,6 +7,9 @@
 	<title>Streamline - {{videoTitle}}</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/streamlinePlayer.css">
+  <script>
+    if (!localStorage.getItem('Authorization')) location.replace('/login')
+  </script>
 </head>
 <body>
 	<div class='player'>
@@ -55,7 +58,7 @@
     </div>
   </div>
 	<script src="js/jquery.min.js"></script>
-	<script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-	<script src="js/streamlinePlayer.js"></script>
+	<script src="js/dash.all.min.js"></script>
+	<script src="js/streamline/player.js"></script>
 </body>
 </html>

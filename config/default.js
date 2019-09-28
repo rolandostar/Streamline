@@ -17,5 +17,6 @@ module.exports = {
   port: validatedData.PORT,
   environment: validatedData.NODE_ENV,
   database: sequelizerc[validatedData.NODE_ENV],
+  jwtSecret: validatedData.JWT_SECRET,
   logger: { redact: ['req.headers.authorization'] }
 }

@@ -2,5 +2,10 @@
   "cSpell.words": [
     "fastify",
     "sequelizejs"
+  ],
+  "cSpell.ignoreWords": [
+    "bootstrap",
+    "datetimepicker",
+    "tabindex"
   ]
 }

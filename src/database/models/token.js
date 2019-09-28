@@ -8,11 +8,6 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.INTEGER
     },
-    token: {
-      unique: true,
-      allowNull: false,
-      type: DataTypes.STRING(50)
-    },
     timesUsed: {
       allowNull: true,
       type: DataTypes.INTEGER

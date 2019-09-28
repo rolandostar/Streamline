@@ -1,5 +1,7 @@
 'use strict'
 
+const bcrypt = require('bcrypt')
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     id: {
@@ -17,11 +19,17 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(100)
     }
   }, {
-    paranoid: true
+    paranoid: true,
+    updatedAt: false
   })
 
   User.associate = function (models) {
     User.hasMany(models.Token)
+  }
+
+  User.generateHash = (password) => bcrypt.hashSync(password, bcrypt.genSaltSync(8))
+  User.prototype.validPassword = function (password) {
+    return bcrypt.compareSync(password, this.password)
   }
 
   return User

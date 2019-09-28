@@ -1,6 +1,7 @@
 'use strict'
 
 module.exports = (sequelize, DataTypes) => {
+  // FIXME Do not allow null for UserId
   const Job = sequelize.define('Job', {
     id: {
       primaryKey: true,
@@ -13,19 +14,22 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(2000)
     },
     startDate: {
-      allowNull: false,
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      allowNull: false
     },
     endDate: {
-      allowNull: false,
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      allowNull: false
     }
   }, {
-    paranoid: true
+    paranoid: true,
+    updatedAt: false,
+    deletedAt: 'executedAt'
   })
 
   Job.associate = function (models) {
     Job.belongsTo(models.User)
+    Job.hasOne(models.Recording)
   }
 
   return Job
