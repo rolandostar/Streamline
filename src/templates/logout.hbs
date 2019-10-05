@@ -1,0 +1,17 @@
+<script src="js/jquery.min.js"></script>
+<script>
+  if (!localStorage.getItem('Authorization')) location.replace('/login')
+  else {
+    $.ajax({
+      url: 'logout',
+      type: 'DELETE',
+      beforeSend: function (request) {
+        request.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('Authorization'))
+      },
+      complete: (response, status) => {
+        localStorage.removeItem('Authorization')
+        location.replace('/login')
+      }
+    })
+  }
+</script>

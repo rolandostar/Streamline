@@ -5,28 +5,36 @@ module.exports.lookup = function (request, reply) { reply.send() }
 module.exports.edit = function (request, reply) { reply.send() }
 module.exports.delete = function (request, reply) { reply.send() }
 module.exports.create = async function (request, reply) {
-  console.log(this.hasDecorator('downloadVideo'))
   const { downloadVideo } = this
-  const { Recording, Job } = this.sequelize.models
+  const { Recording, Job, User } = this.sequelize.models
   const { title, url, dateStart, dateEnd } = request.body
   const startDate = new Date(dateStart)
   const endDate = new Date(dateEnd)
+  const nowDate = new Date()
+  if (endDate.getTime() <= startDate.getTime()) return reply.badRequest('Tiempo Fin debe ser mayor a Tiempo de Inicio')
+  if (nowDate.getTime() >= endDate.getTime()) return reply.badRequest('Tiempo Fin debe ser mayor al Tiempo Actual')
+  const user = await User.findOne({ where: { username: request.user.username } })
   const recording = await Recording.create({
     title,
     status: 'PENDING',
     Job: {
       source: url,
       startDate,
-      endDate
-    }
+      endDate,
+      UserId: user.id
+    },
+    UserId: user.id
   }, { include: Job })
-  recording.setUser(request.user.id)
-  recording.Job.setUser(request.user.id)
-  request.log.info('Scheduling new job: ' + dateStart)
-  this.schedule.scheduleJob(
-    startDate,
-    function (recording) { downloadVideo(recording.Job) }
-      .bind(null, recording)
-  )
-  reply.send()
+  if (startDate.getTime() > nowDate.getTime()) {
+    request.log.info('Scheduling new job: ' + dateStart)
+    this.schedule.scheduleJob(
+      startDate,
+      function (recording) { downloadVideo(recording.Job) }
+        .bind(null, recording)
+    )
+  } else {
+    request.log.info('Executing new job NOW')
+    downloadVideo(recording.Job)
+  }
+  reply.send(recording)
 }

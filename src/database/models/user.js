@@ -1,14 +1,15 @@
 'use strict'
 
+const chance = require('chance')()
 const bcrypt = require('bcrypt')
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     id: {
       primaryKey: true,
-      autoIncrement: true,
       allowNull: false,
-      type: DataTypes.INTEGER
+      type: DataTypes.UUID,
+      defaultValue: chance.guid()
     },
     username: {
       allowNull: false,

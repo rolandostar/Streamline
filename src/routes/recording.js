@@ -6,8 +6,8 @@ const pattern = require('../schemas/recording')
 module.exports = function (fastify, opts, done) {
   fastify
     .get('/', {
-      preValidation: fastify.authenticate
-      // schema: pattern.listRequest
+      preValidation: fastify.authenticate,
+      schema: pattern.listRequest
     }, ctrl.list)
     .get('/:id', {
       preValidation: fastify.authenticate,
@@ -21,7 +21,7 @@ module.exports = function (fastify, opts, done) {
       preValidation: fastify.authenticate,
       // schema: pattern.deletionRequest
     }, ctrl.delete)
-    .post('/search/:query', {
+    .get('/search', {
       preValidation: fastify.authenticate,
       // schema: pattern.searchRequest
     }, ctrl.search)

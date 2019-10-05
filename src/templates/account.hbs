@@ -1,21 +1,91 @@
 {{> header }}
-{{> nav }}
-Hello
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
     <div class="container">
-      <div class="row footer">
-        <div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-2 text-center text-muted">
-          <p>Streamline tiene licencia bajo BSD-3-Clause</p>
-          <p class="h6">&copy<a class="text-green ml-2" href="https://rolandostar.com" target="_blank">Rolando Romero</a></p>
-        </div>
-        </hr>
+      <a class="navbar-brand d-none d-md-block" href="/">
+        <img src="/img/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+        Streamline
+      </a>
+      <div class="ml-auto"></div>
+      <div class="input-group col-md-5">
+          <input disabled class="form-control fc-no-border py-2 border-right-0 border" type="search" placeholder="Buscar" name="query">
+          <span class="input-group-append">
+            <button disabled class="btn search border-left-0 border" type="submit"><i class="fa fa-search"></i></button>
+          </span>
+      </div>
+      <div class="d-none d-md-block ml-3">
+        <a href="/account"><i class="fa fa-2x fa-user-circle text-light btn-account"></i></a>
+      </div>
+      <div class="d-none d-md-block ml-3 mr-3">
+        <a href="/logout"><i class="fa fa-2x fa-sign-out-alt text-light btn-account"></i></a>
       </div>
     </div>
-    <script src="js/jquery.min.js"></script>
-    <script src="js/popper.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/moment-with-locales.min.js"></script>
-    <script src="js/bootstrap-datetimepicker.min.js"></script>
-  </body>
+  </nav>
+  <div class="container" style="padding-top: 70px;">
+    <h1 class="section-title">Modificar Perfil</h1>
+    <div id="success-alert" class="alert alert-success collapse" role="alert">
+      <strong>Cambios guardados.</strong> Es necesario volver a iniciar sesion. Redirigiendo en 3 segundos...
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-md-10 my-4">
+        <h2 class="section-title">Cambiar Username</h2>
+        <form id="username-change">
+          <div class="form-row justify-content-md-center">
+            <div class="form-group col-md-3">
+              <input type="text" class="form-control" id="username-input" name="username" required maxlength="50">
+            </div>
+            <div class="form-group col-md-2 col-sm-12">
+              <button type="submit" class="btn btn-primary">Enviar</button>
+            </div>
+          </div>
+          <div class="row justify-content-center">
+            <div id="username-err" class="alert alert-danger col-md-10 collapse" role="alert">
+              <button type="button" class="close"><span aria-hidden="true">&times;</span></button>
+              <strong>Error! </strong><span id="username-err-text"></span>
+            </div>
+          </div>
+        </form>
+        <h2 class="section-title">Cambiar Contraseña</h2>
+        <form id="password-change">
+          <div class="form-row justify-content-md-center">
+            <div class="form-group col-md-3">
+              <label for="password-input">Contraseña Actual</label>
+              <input type="password" class="form-control" id="password-input" placeholder="•••••••••••" required name="password">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="new-password-input">Nueva Contraseña</label>
+              <input type="password" class="form-control" id="new-password-input" required name="newPassword">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="confirm-password-input">Confirmar Contraseña</label>
+              <input type="password" class="form-control" id="confirm-password-input" required name="confirmPassword">
+            </div>
+            <div class="form-group col-md-2 col-sm-12">
+              <button type="submit" class="btn btn-primary" style="margin-top: 2em">Enviar</button>
+            </div>
+          </div>
+        </form>
+        <div id="password-err" class="alert alert-danger collapse" role="alert">
+          <button type="button" class="close"><span aria-hidden="true">&times;</span></button>
+          <strong>Error! </strong><span id="password-err-text"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row footer">
+      <div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-2 text-center text-muted">
+        <p>Obra licenciada bajo BSD-3-Clause</p>
+        <p class="h6">&copy<a class="text-green ml-2" href="https://rolandostar.com" target="_blank">Rolando Romero</a></p>
+      </div>
+      </hr>
+    </div>
+  </div>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/moment-with-locales.min.js"></script>
+  <script src="js/bootstrap-datetimepicker.min.js"></script>
+  <script src="js/streamline/account.js"></script>
+</body>
 </html>
 
 

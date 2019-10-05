@@ -15,6 +15,18 @@ html {
   padding-right: 0px !important;
 }
 
+input[disabled]:hover {
+  cursor:not-allowed
+}
+
+button[disabled]:hover {
+  cursor:not-allowed
+}
+
+nav {
+  height: 60px;
+}
+
 /* ---------------------------------- Login --------------------------------- */
 .card-signin {
   border: 0;
@@ -101,11 +113,16 @@ html {
   color: #4e5d6c;
   background-color: white;
 }
-
+/* 
 .btn.search:hover {
   color: white;
   background-color: #4e5d6c;
 }
+
+.btn.search[disabled]:hover {
+  color: #4e5d6c;
+  background-color: white;
+} */
 
 .btn-add {
   color: white;
@@ -161,9 +178,17 @@ html {
   padding: 5px;
 }
 
+.search-container {
+  min-height: 100px;
+}
+
 .footer {
   margin: 50px 0 20px 0;
   line-height: 20%;
+}
+
+.no-video {
+  max-height: none;
 }
 
 /* MEDIA QUERIES */
@@ -173,6 +198,10 @@ html {
     display: grid;
     grid-gap: 20px;
     grid-template-columns: repeat(3, minmax(100px, 1fr));
+  }
+
+  .no-video {
+    max-height: 200px;
   }
 }
 

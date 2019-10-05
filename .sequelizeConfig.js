@@ -1,7 +1,7 @@
 module.exports = {
   'development': {
     'dialect': 'sqlite',
-    'storage': 'db.dev.sqlite3'
+    'storage': 'db.sqlite3'
   },
   'production': {
     'dialect': 'sqlite',

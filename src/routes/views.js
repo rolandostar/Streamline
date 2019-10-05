@@ -20,5 +20,9 @@ module.exports = function (fastify, opts, done) {
       reply.view('account.hbs', {})
     })
 
+    .get('/logout', (req, reply) => {
+      reply.view('logout.hbs', {})
+    })
+
   done()
 }

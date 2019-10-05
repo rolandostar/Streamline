@@ -17,7 +17,7 @@ fastify.ready(err => {
     console.log('[%s]', fastify.chalk.yellow('Streamline Database Admin Tool 1.0'))
     let migrationOptions = []
     let migrationArray = []
-    const migrationPath = path.join(__dirname, '../src/system/db/migrations')
+    const migrationPath = path.join(__dirname, '../src/database/migrations')
     fs.readdirSync(migrationPath).forEach(file => {
       const dateString = file.substring(0, file.indexOf('-'))
       const filename = file.substring(file.indexOf('-') + 1)
@@ -34,7 +34,7 @@ fastify.ready(err => {
       migrationOptions.push(formattedFilename)
     })
     let seedOptions = []
-    const seedPath = path.join(__dirname, '../src/system/db/seeders')
+    const seedPath = path.join(__dirname, '../src/database/seeders')
     fs.readdirSync(seedPath).forEach(file => {
       seedOptions.push(file.substring(0, file.length - 3))
     })

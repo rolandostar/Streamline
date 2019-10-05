@@ -25,10 +25,12 @@
   "scripts": {
     "start": "node -r dotenv/config src/",
     "dev": "nodemon --inspect -r dotenv/config src/",
-    "lint": "eslint src/ --config .eslintrc.json"
+    "lint": "eslint src/ --config .eslintrc.json",
+    "db": "node util/dbAdmin.js"
   },
   "dependencies": {
     "bcrypt": "^3.0.6",
+    "chance": "^1.1.0",
     "config": "^3.2.2",
     "dotenv": "^8.1.0",
     "fast-json-parse": "^1.0.3",

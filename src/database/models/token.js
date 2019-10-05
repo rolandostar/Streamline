@@ -11,11 +11,6 @@ module.exports = (sequelize, DataTypes) => {
     timesUsed: {
       allowNull: true,
       type: DataTypes.INTEGER
-    },
-    unlimited: {
-      allowNull: false,
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
     }
   }, {
     timestamps: true,

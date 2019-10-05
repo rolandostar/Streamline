@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
   })
 
   Job.associate = function (models) {
-    Job.belongsTo(models.User)
+    Job.belongsTo(models.User, { foreignKey: { allowNull: false } })
     Job.hasOne(models.Recording)
   }
 

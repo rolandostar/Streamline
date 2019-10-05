@@ -1,65 +1,41 @@
 {{> header }}
-{{> nav }}
-  <div class="fab" data-toggle="modal" data-target="#addRecordingTask"><span class="align-self-center">+</span></div>
-  <div class="container dashboard">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand d-none d-md-block" href="/">
+        <img src="/img/logo.svg" width="30" height="30" class="d-inline-block align-top" alt="">
+        Streamline
+      </a>
+      <div class="ml-auto"></div>
+      <div class="input-group col-md-5">
+          <input id="search-text" disabled class="form-control fc-no-border py-2 border-right-0 border" type="search" placeholder="Buscar" name="query">
+          <span class="input-group-append">
+            <button id="search-btn" disabled class="btn search border-left-0 border" type="submit"><i class="fa fa-search"></i></button>
+          </span>
+      </div>
+      <div class="d-none d-md-block ml-3">
+        <a id="acc"><i class="fa fa-2x fa-user-circle text-light btn-account"></i></a>
+      </div>
+      <div class="d-none d-md-block ml-3 mr-3">
+        <a href="/logout"><i class="fa fa-2x fa-sign-out-alt text-light btn-account"></i></a>
+      </div>
+    </div>
+  </nav>
+  <div class="fab collapse" data-toggle="modal" data-target="#addRecordingTask"><span class="align-self-center">+</span></div>
+  <div id="main-spinner" class="spinner-border text-primary" style="margin-top: 15%;margin-bottom: 15%; margin-left: calc(50% - 20px)" role="status">
+    <span class="sr-only">Loading...</span>
+  </div>
+  <div class="container dashboard collapse">
+    <div class="search-container collapse">
+      <h1 class="section-title">Resultados de Busqueda</h1>
+      <div id="search-spinner" class="spinner-border text-primary" style="margin-left: calc(50% - 20px)" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <div class="grid" id="search-results"></div>
+    </div>
     <h1 class="section-title">Grabaciones Recientes</h1>
-    <div class="grid" id="recent-recordings">
-      {{!-- <a class="thumbnail" href="1">
-          <img src="https://dummyimage.com/290x160/ccc/000.png" class="img-responsive">
-          <div class="thumbnail-title">
-              <h4>Title</h4>
-              <p>Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor</p>
-          </div>
-      </a>
-      <a class="thumbnail" href="1">
-          <img src="https://dummyimage.com/290x160/ccc/000.png" class="img-responsive">
-          <div class="thumbnail-title">
-              <h4>Title</h4>
-              <p>Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor</p>
-          </div>
-      </a>
-      <a class="thumbnail" href="1">
-          <img src="https://dummyimage.com/290x160/ccc/000.png" class="img-responsive">
-          <div class="thumbnail-title">
-              <h4>Lorem ipsum dolor Lorem ipsum dolor Lorem ip</h4>
-              <p>Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor</p>
-          </div>
-      </a>
-      <a class="thumbnail" href="1">
-          <img src="https://dummyimage.com/290x160/ccc/000.png" class="img-responsive">
-          <div class="thumbnail-title">
-              <h4>Title</h4>
-              <p>Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor Lorem ipsum dolor</p>
-          </div>
-      </a> --}}
-    </div>
+    <div class="grid" id="recent-recordings"></div>
     <h1 class="section-title">Todas las grabaciones</h1>
-    <div class="grid" id="all-recordings">
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-      <a href=""><img src="https://dummyimage.com/290x160/ccc/000.png" alt=""></a>
-    </div>
+    <div class="grid" id="all-recordings"></div>
   </div>
   <!-- Modal -->
   <div class="modal fade" id="addRecordingTask" tabindex="-1" role="dialog" aria-labelledby="addRecordingTaskTitle" aria-hidden="true">
@@ -71,51 +47,54 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body">
-          <form>
+        <form id="new-recording-job">
+          <div class="modal-body">
             <div class="form-group row">
               <label for="title" class="col-sm-2 col-form-label">Titulo</label>
               <div class="col-sm-10">
-                <input name="title" type="text" class="form-control" id="inputTitle" placeholder="Titulo de Grabación" autocomplete="off">
+                <input name="title" type="text" class="form-control" id="inputTitle" placeholder="Titulo de Grabación" autocomplete="off" required >
               </div>
+              <div class="invalid-feedback">No, you missed this one.</div>
             </div>
             <div class="form-group row">
               <label for="url" class="col-sm-2 col-form-label">URL</label>
               <div class="col-sm-10">
-                <input name="url" type="text" class="form-control" id="url" placeholder="http://example.com" autocomplete="off">
+                <input name="url" type="url" pattern="https?://.+" class="form-control" id="url" placeholder="http://example.com" autocomplete="off" required>
               </div>
             </div>
             <div class="form-group row">
               <label for="dateStart" class="col-sm-2 col-form-label">Tiempo de Inicio</label>
               <div class="col-sm-10">
-                <input name="dateStart" type="text" class="form-control" id="startDate" autocomplete="off">
+                <input name="dateStart" type="text" class="form-control" id="startDate" autocomplete="off" required>
               </div>
             </div>
             <div class="form-group row">
               <label for="dateEnd" class="col-sm-2 col-form-label">Tiempo Fin</label>
               <div class="col-sm-10">
-                <input name="dateEnd" type="text" class="form-control" id="endDate" autocomplete="off">
+                <input name="dateEnd" type="text" class="form-control" id="endDate" autocomplete="off" required>
               </div>
             </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button id="addRecordingTask-button" type="submit" class="btn btn-primary">Save changes</button>
-        </div>
+          </div>
+          <div class="alert alert-danger collapse" role="alert">
+            <button type="button" class="close"><span aria-hidden="true">&times;</span></button>
+            <strong>Error! </strong><span id="err-text"></span>
+          </div>
+          <div class="modal-footer">
+            <button id="addRecordingTask-button" type="submit" class="btn btn-primary">Enviar</button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
     <div class="container">
-      <div class="row footer">
+      <div class="row footer collapse">
         <div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-2 text-center text-muted">
-          <p>Streamline tiene licencia bajo BSD-3-Clause</p>
+          <p>Obra licenciada bajo BSD-3-Clause</p>
           <p class="h6">&copy<a class="text-green ml-2" href="https://rolandostar.com" target="_blank">Rolando Romero</a></p>
         </div>
         </hr>
       </div>
     </div>
-    <script src="js/jquery.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/moment-with-locales.min.js"></script>

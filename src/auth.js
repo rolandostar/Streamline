@@ -4,16 +4,40 @@ const fp = require('fastify-plugin')
 const bcrypt = require('bcrypt')
 
 async function auth (fastify, opts) {
-  // ruta registro de usuarios
-  // funcion de lectura de token con permiso-*
-
-  // TODO To refresh the token your API needs a new endpoint that receives a valid, not expired JWT and returns the same signed JWT with the new expiration field. Then the web application will store the token somewhere.
-
   fastify.decorate('authenticate', (request, reply, done) => {
-    request.jwtVerify({ ignoreExpiration: true }, (err, decoded) => {
+    request.jwtVerify((err, decoded) => {
       if (err) done(err)
-      else done()
+      else {
+        const { Token } = fastify.sequelize.models
+        Token.findOne({ where: { id: decoded.jti } }).then(token => {
+          if (!token) done(fastify.httpErrors.unauthorized())
+          else {
+            token.update({ timesUsed: token.timesUsed + 1 })
+            done()
+          }
+        })
+      }
     })
+  })
+
+  fastify.put('/renew', {
+    preValidation: fastify.authenticate
+  }, async (request, reply) => {
+    const jwtOptions = {
+      ...fastify.jwt.options.sign,
+      jwtid: request.user.jti
+    }
+    const token = fastify.jwt.sign({ username: request.user.username }, jwtOptions)
+    reply.send({ token })
+  })
+
+  fastify.delete('/logout',{
+    preValidation: fastify.authenticate
+  }, async (request, reply) => {
+    const { Token } = fastify.sequelize.models
+    const token = await Token.findOne({ where: { id: request.user.jti } })
+    await token.destroy()
+    reply.send({ success: true })
   })
 
   fastify.post('/login', {
@@ -37,15 +61,13 @@ async function auth (fastify, opts) {
     if (!user || !bcrypt.compareSync(password, user.password)) {
       return reply.unauthorized('Username or password incorrect')
     }
-    const tokenInstance = await Token.create({ UserId: user.id, count: 0 })
-    const jwtPayload = { id: user.id, username: user.username }
-    const jwtOptions = { expiresIn: '50m', jwtid: tokenInstance.id.toString() }
-    const token = fastify.jwt.sign(jwtPayload, jwtOptions)
-    jwtPayload.token = token
-    let d = new Date()
-    d.setMinutes(d.getMinutes() + 20)
-    jwtPayload.exp = d.getTime()
-    reply.send(jwtPayload)
+    const tokenInstance = await Token.create({ UserId: user.id, timesUsed: 0 })
+    const jwtOptions = {
+      ...fastify.jwt.options.sign,
+      jwtid: tokenInstance.id.toString()
+    }
+    const token = fastify.jwt.sign({ username: user.username }, jwtOptions)
+    reply.send({ token, username })
   })
 }
 

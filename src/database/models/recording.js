@@ -23,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       allowNull: false,
       type: DataTypes.STRING(50)
+    },
+    filename: {
+      allowNull: true,
+      type: DataTypes.STRING(100)
     }
   }, {
     paranoid: true,
@@ -30,8 +34,8 @@ module.exports = (sequelize, DataTypes) => {
   })
 
   Recording.associate = function (models) {
-    Recording.belongsTo(models.Job)
-    Recording.belongsTo(models.User)
+    Recording.belongsTo(models.Job, { foreignKey: { allowNull: false } })
+    Recording.belongsTo(models.User, { foreignKey: { allowNull: false } })
   }
 
   return Recording

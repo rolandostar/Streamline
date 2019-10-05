@@ -2,6 +2,7 @@ const path = require('path')
 const config = require('config')
 const fastify = require('fastify')({ logger: config.logger })
 const jwtSecret = config.get('jwtSecret')
+const issuer = config.get('issuer')
 /* ------------------------------- Middlewares ------------------------------ */
 
 fastify
@@ -10,7 +11,11 @@ fastify
   .register(require('fastify-helmet')) // Optimized Helmet
   .register(require('fastify-cors')) // Cross-Origin Resource Sharing
   .register(require('fastify-chalk'))
-  .register(require('fastify-jwt'), { secret: jwtSecret })
+  .register(require('fastify-jwt'), {
+    secret: jwtSecret,
+    sign: { issuer, expiresIn: '20m' },
+    verify: { issuer }
+  })
   .register(require('point-of-view'), {
     engine: {
       handlebars: require('handlebars')
@@ -18,8 +23,7 @@ fastify
     templates: 'src/templates',
     options: {
       partials: {
-        header: 'include/header.hbs',
-        nav: 'include/nav.hbs'
+        header: 'include/header.hbs'
       }
     }
   })
@@ -27,9 +31,15 @@ fastify
     root: path.join(__dirname, 'templates', 'public'),
     decorateReply: false
   })
+  .register(require('fastify-static'), {
+    root: path.join(__dirname, '../storage'),
+    prefix: '/storage',
+    decorateReply: false
+  })
 /* --------------------------- Custom Middlewares --------------------------- */
   .register(require('./database'))
   .register(require('./auth'))
+  .register(require('./encoder'))
   .register(require('./downloader'))
   .register(require('./scheduler'))
 /* --------------------------------- Routes --------------------------------- */

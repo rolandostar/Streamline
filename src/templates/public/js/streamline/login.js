@@ -13,6 +13,7 @@ $('button#login-btn').on('click', function (event) {
     contentType: 'application/json',
     data: JSON.stringify(payload),
     success: (response, status) => {
+      localStorage.setItem('Username', response.username)
       localStorage.setItem('Authorization', response.token)
       location.replace('/')
     },

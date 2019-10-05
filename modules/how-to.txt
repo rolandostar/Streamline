@@ -1,0 +1,10 @@
+Place binaries here, as such for windows:
+
+[streamline-root]/modules/youtube-dl.exe
+[streamline-root]/modules/ffmpeg.exe
+
+
+Or for *unix:
+
+[streamline-root]/modules/youtube-dl
+[streamline-root]/modules/ffmepg

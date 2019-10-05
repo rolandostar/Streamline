@@ -6,7 +6,7 @@ module.exports = function (fastify, opts, done) {
   })
   fastify.register(require('./recording'), { prefix: 'recording' })
   fastify.register(require('./task'), { prefix: 'task' })
-  // fastify.register(require('./user'), { prefix: 'user' })
+  fastify.register(require('./user'), { prefix: 'user' })
   // fastify.register(require('./recording'), { prefix: 'recording' })
   done()
 }

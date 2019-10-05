@@ -1,3 +1,4 @@
+require('dotenv').config()
 const Joi = require('joi')
 const sequelizerc = require('../.sequelizeConfig')
 
@@ -6,7 +7,8 @@ const envVarsSchema = Joi.object({
     .allow(['development', 'production']),
   HOST: Joi.string().default('localhost'),
   PORT: Joi.number().default(3000),
-  JWT_SECRET: Joi.string().required()
+  JWT_SECRET: Joi.string().required(),
+  JWT_ISSUER: Joi.string().required()
 }).unknown().required()
 
 const { error, value: validatedData } = Joi.validate(process.env, envVarsSchema)
@@ -18,5 +20,6 @@ module.exports = {
   environment: validatedData.NODE_ENV,
   database: sequelizerc[validatedData.NODE_ENV],
   jwtSecret: validatedData.JWT_SECRET,
+  issuer: validatedData.JWT_ISSUER,
   logger: { redact: ['req.headers.authorization'] }
 }
