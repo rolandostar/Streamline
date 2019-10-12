@@ -54,7 +54,7 @@ function fastifySequelize (fastify, _options, done) {
     fastify.log.error('SYSTEM MODELS\t[%s]', fastify.chalk.red('ERROR'))
     done(err)
   }
-  //fastify.sequelize.sync({ force: true }).then(() => done())
+  // fastify.sequelize.sync({ force: true }).then(() => done())
   done()
 }
 

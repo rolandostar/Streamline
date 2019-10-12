@@ -1,5 +1,5 @@
 const usr = localStorage.getItem('Username')
-if ( usr.length > 0 ) $('#username-input').attr("placeholder", usr)
+if (usr.length > 0) $('#username-input').attr('placeholder', usr)
 
 $('div.alert').on('click', 'button.close', function () {
   $(this).parent().animate({ opacity: 0 }, 300).hide('slow')
@@ -43,8 +43,8 @@ $('#password-change').on('submit', function (event) {
     old: data[0].value,
     new: data[1].value
   }
-  if (data[1].value != data[2].value) {
-    $('#password-err-text').text("Contraseña Nueva y Confirmacion no coinciden.")
+  if (data[1].value !== data[2].value) {
+    $('#password-err-text').text('Contraseña Nueva y Confirmacion no coinciden.')
     $('#password-err').css('opacity', 1).slideDown()
   } else {
     renewToken()

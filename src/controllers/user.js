@@ -1,14 +1,14 @@
 'use strict'
 
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
 module.exports.update = async function (request, reply) {
   const { User } = this.sequelize.models
   if (request.body.username) {
     if (request.body.username === request.user.username) return reply.badRequest('El nuevo username debe ser distinto al actual.')
-    const desiredUser = await User.findOne({ where: { username: request.body.username }})
+    const desiredUser = await User.findOne({ where: { username: request.body.username } })
     if (desiredUser) return reply.badRequest('Username ya esta ocupado.')
-    const currentUser = await User.findOne({ where: { username: request.user.username }})
+    const currentUser = await User.findOne({ where: { username: request.user.username } })
     const tokens = await currentUser.getTokens()
     for (let index = 0; index < tokens.length; index++) {
       await tokens[index].destroy()

@@ -1,7 +1,7 @@
 'use strict'
 
 const fp = require('fastify-plugin')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
 async function auth (fastify, opts) {
   fastify.decorate('authenticate', (request, reply, done) => {
@@ -31,7 +31,7 @@ async function auth (fastify, opts) {
     reply.send({ token })
   })
 
-  fastify.delete('/logout',{
+  fastify.delete('/logout', {
     preValidation: fastify.authenticate
   }, async (request, reply) => {
     const { Token } = fastify.sequelize.models

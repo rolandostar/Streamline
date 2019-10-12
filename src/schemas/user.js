@@ -15,8 +15,8 @@ const updateRequest = {
     },
     additionalProperties: false,
     oneOf: [
-     { required: ['username'] },
-     { required: ['password'] }
+      { required: ['username'] },
+      { required: ['password'] }
     ]
   }
 }

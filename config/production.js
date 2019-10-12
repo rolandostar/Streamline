@@ -1,5 +1,5 @@
 module.exports = {
-  loggerOpts: {
+  logger: {
     level: 'warn'
   }
 }

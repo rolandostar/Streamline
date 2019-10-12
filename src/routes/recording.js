@@ -10,19 +10,19 @@ module.exports = function (fastify, opts, done) {
       schema: pattern.listRequest
     }, ctrl.list)
     .get('/:id', {
-      preValidation: fastify.authenticate,
+      preValidation: fastify.authenticate
       // schema: pattern.lookupRequest
     }, ctrl.lookup)
     .put('/:id', {
-      preValidation: fastify.authenticate,
+      preValidation: fastify.authenticate
       // schema: pattern.editRequest
     }, ctrl.edit)
     .delete('/:id', {
-      preValidation: fastify.authenticate,
+      preValidation: fastify.authenticate
       // schema: pattern.deletionRequest
     }, ctrl.delete)
     .get('/search', {
-      preValidation: fastify.authenticate,
+      preValidation: fastify.authenticate
       // schema: pattern.searchRequest
     }, ctrl.search)
   done()

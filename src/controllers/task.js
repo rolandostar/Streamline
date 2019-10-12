@@ -25,6 +25,7 @@ module.exports.create = async function (request, reply) {
     },
     UserId: user.id
   }, { include: Job })
+  reply.send(recording)
   if (startDate.getTime() > nowDate.getTime()) {
     request.log.info('Scheduling new job: ' + dateStart)
     this.schedule.scheduleJob(
@@ -36,5 +37,4 @@ module.exports.create = async function (request, reply) {
     request.log.info('Executing new job NOW')
     downloadVideo(recording.Job)
   }
-  reply.send(recording)
 }

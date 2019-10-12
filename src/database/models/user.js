@@ -1,7 +1,7 @@
 'use strict'
 
 const chance = require('chance')()
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {

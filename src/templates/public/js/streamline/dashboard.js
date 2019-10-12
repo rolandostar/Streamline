@@ -40,16 +40,16 @@ $('#acc').on('click', function (event) {
     location.replace('/account')
   })
 })
-var timeout = null;
-$('#search-text').on('search', function(e) {
+var timeout = null
+$('#search-text').on('search', function (e) {
   $('.search-container').slideUp()
 })
-$('#search-text').keyup(function(e){
+$('#search-text').keyup(function (e) {
   $('#search-results').slideUp('fast', () => {
     $('#search-spinner').slideDown()
   })
   $('.search-container').slideDown()
-  clearTimeout(timeout);
+  clearTimeout(timeout)
   timeout = setTimeout(function () {
     const value = $('#search-text').val()
     if (value.length === 0) {
@@ -64,14 +64,14 @@ $('#search-text').keyup(function(e){
           request.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('Authorization'))
         },
         success: (response, status) => {
-          if(response.length === 0) {
+          if (response.length === 0) {
             $('#search-spinner').slideUp('fast', () => {
-              $('#search-results').removeClass('grid').css('text-align','center').append(`<p>No se han encontrado resultados</p>`).slideDown('fast')
+              $('#search-results').removeClass('grid').css('text-align', 'center').append(`<p>No se han encontrado resultados</p>`).slideDown('fast')
             })
           } else {
-            $('#search-results').addClass('grid').css('text-align','none')
+            $('#search-results').addClass('grid').css('text-align', 'none')
             response.forEach(recording => {
-            $('#search-results').append(`
+              $('#search-results').append(`
             <a class="thumbnail" href="1">
               <img src="https://dummyimage.com/290x160/ccc/000.png" class="img-responsive">
               <div class="thumbnail-title">\
@@ -89,8 +89,8 @@ $('#search-text').keyup(function(e){
         error: errGuard
       })
     }
-    console.log('Input Value:', $('#search-text').val());
-}, 500);
+    console.log('Input Value:', $('#search-text').val())
+  }, 500)
 })
 $('#endDate').datetimepicker(options)
 $('#startDate').datetimepicker(options)
@@ -149,10 +149,10 @@ $(document).ready(() => {
           </div>
         </div>
         `)
-        $('.fab').css('right','calc( 50% - 40px )')
+        $('.fab').css('right', 'calc( 50% - 40px )')
       } else {
         response.forEach(recording => {
-            $('#all-recordings').append(`
+          $('#all-recordings').append(`
           <a class="thumbnail" href="1">
             <img src="https://dummyimage.com/290x160/ccc/000.png" class="img-responsive">
             <div class="thumbnail-title">\
@@ -177,7 +177,7 @@ $(document).ready(() => {
                   <p>${recording.status}</p>
               </div>
             </a>`)
-          })
+            })
           },
           error: errGuard
         })

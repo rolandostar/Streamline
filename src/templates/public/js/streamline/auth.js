@@ -1,7 +1,7 @@
 if (!localStorage.getItem('Authorization')) location.replace('/login')
 else { renewToken() }
 
-function renewToken() {
+function renewToken () {
   $.ajax({
     url: 'renew',
     type: 'PUT',
@@ -20,7 +20,7 @@ function renewToken() {
   })
 }
 
-function errGuard(response, status) {
+function errGuard (response, status) {
   if (response.responseJSON.statusCode === 401) {
     localStorage.removeItem('Authorization')
     location.replace('/login')

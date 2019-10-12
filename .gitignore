@@ -1,6 +1,6 @@
 ## Personal
 @*
-storage/
+storage/*/**
 
 *.sqlite3
 

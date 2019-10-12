@@ -6,11 +6,11 @@ const pattern = require('../schemas/task')
 module.exports = function (fastify, opts, done) {
   fastify
     .get('/', {
-      preValidation: fastify.authenticate,
+      preValidation: fastify.authenticate
       // schema: pattern.listRequest
     }, ctrl.list)
     .get('/:id', {
-      preValidation: fastify.authenticate,
+      preValidation: fastify.authenticate
       // schema: pattern.lookupRequest
     }, ctrl.lookup)
     .post('/', {
@@ -18,11 +18,11 @@ module.exports = function (fastify, opts, done) {
       schema: pattern.creationRequest
     }, ctrl.create)
     .put('/:id', {
-      preValidation: fastify.authenticate,
+      preValidation: fastify.authenticate
       // schema: pattern.editRequest
     }, ctrl.edit)
     .delete('/:id', {
-      preValidation: fastify.authenticate,
+      preValidation: fastify.authenticate
       // schema: pattern.deletionRequest
     }, ctrl.delete)
   done()
