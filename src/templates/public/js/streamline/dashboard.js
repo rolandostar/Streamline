@@ -151,6 +151,7 @@ $(document).ready(() => {
         `)
         $('.fab').css('right', 'calc( 50% - 40px )')
       } else {
+        console.log(response)
         response.forEach(recording => {
           $('#all-recordings').append(`
           <a class="thumbnail" href="1">

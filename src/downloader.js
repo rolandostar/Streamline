@@ -3,25 +3,28 @@
 const fp = require('fastify-plugin')
 const path = require('path')
 const childProcess = require('child_process')
+const ThumbnailGenerator = require('video-thumbnail-generator').default
 
 async function downloader (fastify, opts) {
   fastify.decorate('downloadVideo', async (jobInstance) => {
     const recording = jobInstance.Recording ? jobInstance.Recording : await jobInstance.getRecording()
     const user = await jobInstance.getUser()
-    const execFilePath = path.join('./modules', process.platform === 'win32' ? 'youtube-dl.exe' : 'youtube-dl')
+    const execFilePath = './modules/youtube-dl'
+    const dateStart = new Date(jobInstance.startDate)
+    const dateEnd = new Date(jobInstance.endDate)
     let args = [
       '--get-filename',
       '--config-location', 'modules',
-      '-o', `storage/${user.id}/%(title)s/original.mp4`,
+      '-o', `storage/${user.id}/%(title)s_${dateStart.getTime()}/original.mp4`,
       `${jobInstance.source}`
     ]
-    const dateEnd = new Date(jobInstance.endDate)
     fastify.log.warn(`Begin download "${recording.title}" from ${jobInstance.source} until ${jobInstance.endDate} for user: ${user.username}`)
     await jobInstance.destroy()
     try {
       const stdout = childProcess.execFileSync(execFilePath, args)
+      const dir = path.basename(path.dirname(stdout.toString()))
       await recording.update({
-        filename: path.basename(path.dirname(stdout.toString())),
+        dirName: dir,
         status: 'DOWNLOADING'
       })
       args.shift()
@@ -32,6 +35,13 @@ async function downloader (fastify, opts) {
         } else {
           fastify.log.warn(`Finished download of "${recording.title}" from ${jobInstance.source} for user: ${user.username}`)
           await recording.update({ status: 'DOWNLOADED' })
+          const videoDir = path.join(`./storage/${user.id}`, dir)
+          const tg = new ThumbnailGenerator({
+            sourcePath: path.join(videoDir, 'original.mp4'),
+            thumbnailPath: videoDir
+          })
+          const thumbnailFilename = await tg.generateOneByPercent(35, { size: '290x160', filename: 'thumb.png' })
+          fastify.log.info(thumbnailFilename)
           fastify.encodeVideo(recording)
         }
       })

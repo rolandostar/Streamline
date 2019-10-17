@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.STRING(50)
     },
-    filename: {
+    dirName: {
       allowNull: true,
       type: DataTypes.STRING(100)
     }

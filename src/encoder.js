@@ -1,7 +1,12 @@
 'use strict'
 
 const fp = require('fastify-plugin')
+const path = require('path')
 const childProcess = require('child_process')
+
+var ffmpeg = require('fluent-ffmpeg')
+var ffmpegBinary = require('ffmpeg-static')
+ffmpeg.setFfmpegPath(ffmpegBinary.path)
 
 let encodeSettings = {
   '360p': [
@@ -62,6 +67,15 @@ let encodeSettings = {
   ]
 }
 
+const mpdArgs = [
+  'in=h264_baseline_360p_600.mp4,stream=audio,output=audio.mp4',
+  'in=h264_baseline_360p_600.mp4,stream=video,output=h264_360p.mp4',
+  'in=h264_main_480p_1000.mp4,stream=video,output=h264_480p.mp4',
+  'in=h264_main_720p_3000.mp4,stream=video,output=h264_720p.mp4',
+  'in=h264_high_1080p_6000.mp4,stream=video,output=h264_1080p.mp4',
+  '--mpd_output', 'h264.mpd'
+]
+
 function ffmpegEncode (args, cwd, msg, fastify) {
   return new Promise((resolve, reject) => {
     childProcess.execFile('ffmpeg', args, { cwd }, (error, stdout, stderr) => {
@@ -76,22 +90,112 @@ async function encoder (fastify, opts) {
   fastify.decorate('encodeVideo', async (recordingInstance) => {
     const user = await recordingInstance.getUser()
     fastify.log.warn('Encoding video...')
-    const cwd = `./storage/${user.id}/${recordingInstance.filename}/`
+    const cwd = `./storage/${user.id}/${recordingInstance.dirName}/`
     recordingInstance.update({ status: 'ENCODING' })
-    Promise.all([
-      ffmpegEncode(encodeSettings['360p'], cwd, '360p Finished', fastify),
-      ffmpegEncode(encodeSettings['480p'], cwd, '480p Finished', fastify),
-      ffmpegEncode(encodeSettings['720p'], cwd, '720p Finished', fastify),
-      ffmpegEncode(encodeSettings['1080p'], cwd, '1080p Finished', fastify)
-    ]).then(function (children) {
-      fastify.log.warn('Finished encoding.')
-      recordingInstance.update({ status: 'ENCODED' })
-      childProcess.execFile('')
-    }).catch(function (children) {
-      fastify.log.error('Encoding error.')
-      recordingInstance.update({ status: 'ENCODING_ERROR' })
-      fastify.log.error(require('util').inspect(children))
+
+
+
+    try {
+      ffmpeg(path.join(cwd, 'original.mp4'))
+        .videoCodec('libx264')
+        .autopad('black')
+        .size('480x360')
+        .videoBitrate('600k')
+
+        .on('start', function (commandLine) {
+          console.log('Spawned Ffmpeg with command: ' + commandLine);
+        })
+        .on('progress', function (progress) {
+          console.log('Processing: ' + progress.percent + '% done');
+        })
+        .on('error', function (err, stdout, stderr) {
+          console.log('Cannot process video: ' + err.message);
+        })
+        .on('end', function (stdout, stderr) {
+          console.log('Transcoding succeeded !');
+          ffmpeg(path.join(cwd, 'original.mp4'))
+        .videoCodec('libx264')
+        .autopad('black')
+          .size('640x480')
+          .videoBitrate('1000k')
+
+          .on('start', function (commandLine) {
+            console.log('Spawned Ffmpeg with command: ' + commandLine);
+          })
+          .on('progress', function (progress) {
+            console.log('Processing: ' + progress.percent + '% done');
+          })
+          .on('error', function (err, stdout, stderr) {
+            console.log('Cannot process video: ' + err.message);
+          })
+          .on('end', function (stdout, stderr) {
+            console.log('Transcoding succeeded !');
+            ffmpeg(path.join(cwd, 'original.mp4'))
+        .videoCodec('libx264')
+        .autopad('black')
+            .size('1280x720')
+            .videoBitrate('3000k')
+
+            .on('start', function (commandLine) {
+              console.log('Spawned Ffmpeg with command: ' + commandLine);
+            })
+            .on('progress', function (progress) {
+              console.log('Processing: ' + progress.percent + '% done');
+            })
+            .on('error', function (err, stdout, stderr) {
+              console.log('Cannot process video: ' + err.message);
+            })
+            .on('end', function (stdout, stderr) {
+              console.log('Transcoding succeeded !');
+              ffmpeg(path.join(cwd, 'original.mp4'))
+        .videoCodec('libx264')
+        .autopad('black')
+              .size('1920x1080')
+              .videoBitrate('6000k')
+
+              .on('start', function (commandLine) {
+                console.log('Spawned Ffmpeg with command: ' + commandLine);
+              })
+              .on('progress', function (progress) {
+                console.log('Processing: ' + progress.percent + '% done');
+              })
+              .on('error', function (err, stdout, stderr) {
+                console.log('Cannot process video: ' + err.message);
+              })
+              .on('end', function (stdout, stderr) {
+                console.log('Transcoding succeeded !');
+                recordingInstance.update({ status: 'ENCODED' })
+    childProcess.execFile('./modules/packager', mpdArgs, { cwd }, (error, stdout, stderr) => {
+      if (error) fastify.log.error(error)
+      else fastify.log.warn('Finished packaging')
     })
+              })
+              .save(path.join(cwd, 'h264_high_1080p_6000.mp4'))
+            })
+            .save(path.join(cwd, 'h264_main_720p_3000.mp4'))
+          })
+          .save(path.join(cwd, 'h264_main_480p_1000.mp4'))
+        })
+        .save(path.join(cwd, 'h264_baseline_360p_600.mp4'))
+    } catch (err) { console.log(err) }
+
+    // Promise.all([
+    //   ffmpegEncode(encodeSettings['360p'], cwd, '360p Finished', fastify),
+    //   ffmpegEncode(encodeSettings['480p'], cwd, '480p Finished', fastify),
+    //   ffmpegEncode(encodeSettings['720p'], cwd, '720p Finished', fastify),
+    //   ffmpegEncode(encodeSettings['1080p'], cwd, '1080p Finished', fastify)
+    // ]).then(function (children) {
+    //   fastify.log.warn('Finished encoding.')
+      // recordingInstance.update({ status: 'ENCODED' })
+      // childProcess.execFile('./modules/packager', mpdArgs, { cwd }, (error, stdout, stderr) => {
+      //   if (error) fastify.log.error(error)
+      //   else fastify.log.warn('Finished packaging')
+      // })
+    // }).catch(function (children) {
+    //   fastify.log.error('Encoding error.')
+    //   recordingInstance.update({ status: 'ENCODING_ERROR' })
+    //   fastify.log.error(require('util').inspect(children))
+    // })
   })
 }
 
