@@ -13,6 +13,10 @@ module.exports = function (fastify, opts, done) {
       preValidation: fastify.authenticate
       // schema: pattern.lookupRequest
     }, ctrl.lookup)
+    .get('/:id/liveUpdate', {
+      // preValidation: fastify.authenticate
+      // schema: pattern.lookupRequest
+    }, ctrl.liveUpdate)
     .put('/:id', {
       preValidation: fastify.authenticate
       // schema: pattern.editRequest

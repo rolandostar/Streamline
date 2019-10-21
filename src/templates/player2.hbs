@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
+    <!-- Shaka Player compiled library: -->
+
+    <meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Streamline - {{videoTitle}}</title>
@@ -9,13 +11,13 @@
   <link rel="stylesheet" href="css/streamlinePlayer.css">
   <script src="js/jquery.min.js"></script>
   <script src="js/streamline/auth.js"></script>
-</head>
-<body>
-	<div class='player'>
-    {{!-- <video id="video" playsinline data-dashjs-player src="http://rdmedia.bbc.co.uk/dash/ondemand/testcard/1/client_manifest-events.mpd"></video> --}}
-		{{!-- <video id="video" playsinline data-dashjs-player></video> --}}
-    <video id="video"></video>
-    <div class='controls'>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/2.5.0/shaka-player.compiled.js"></script>
+  </head>
+  <body>
+    <div class='player'>
+      <video id="video"
+        poster="http://localhost:3000/storage/26c96ed7-31b1-5937-a5b8-fa1acfd0d250/ElmiilloR_2019-10-21_16_32_1571693522000/thumb.png"></video>
+        <div class='controls'>
       <a class="arrow-back" href="/">
 <svg height="32px" viewBox="0 0 32 32" width="32px" fill="white"><path d="M28,14H8.8l4.62-4.62C13.814,8.986,14,8.516,14,8c0-0.984-0.813-2-2-2c-0.531,0-0.994,0.193-1.38,0.58l-7.958,7.958  C2.334,14.866,2,15.271,2,16s0.279,1.08,0.646,1.447l7.974,7.973C11.006,25.807,11.469,26,12,26c1.188,0,2-1.016,2-2  c0-0.516-0.186-0.986-0.58-1.38L8.8,18H28c1.104,0,2-0.896,2-2S29.104,14,28,14z"/></svg>
       </a>
@@ -58,7 +60,58 @@
 	    </div>
     </div>
   </div>
-	<script src="js/dash.all.min.js"></script>
-	<script src="js/streamline/player.js"></script>
+<script src="js/streamline/player.js"></script>
+<script>
+// myapp.js
+
+var manifestUri =
+    //'http://localhost:3000/storage/26c96ed7-31b1-5937-a5b8-fa1acfd0d250/ElmiilloR_2019-10-21_16_32_1571693522000/manifest.mpd';
+    'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
+
+function initApp() {
+  // Install built-in polyfills to patch browser incompatibilities.
+  shaka.polyfill.installAll();
+
+  // Check to see if the browser supports the basic APIs Shaka needs.
+  if (shaka.Player.isBrowserSupported()) {
+    // Everything looks good!
+    initPlayer();
+  } else {
+    // This browser does not have the minimum set of APIs we need.
+    console.error('Browser not supported!');
+  }
+}
+
+function initPlayer() {
+  // Create a Player instance.
+  var video = document.getElementById('video');
+  var player = new shaka.Player(video);
+
+  // Attach player to the window to make it easy to access in the JS console.
+  window.player = player;
+
+  // Listen for error events.
+  player.addEventListener('error', onErrorEvent);
+
+  // Try to load a manifest.
+  // This is an asynchronous process.
+  player.load(manifestUri).then(function() {
+    // This runs if the asynchronous load is successful.
+    console.log('The video has now been loaded!');
+  }).catch(onError);  // onError is executed if the asynchronous load fails.
+}
+
+function onErrorEvent(event) {
+  // Extract the shaka.util.Error object from the event.
+  onError(event.detail);
+}
+
+function onError(error) {
+  // Log the error.
+  console.error('Error code', error.code, 'object', error);
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
 </body>
 </html>

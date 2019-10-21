@@ -21,7 +21,8 @@ function fastifySequelize (fastify, _options, done) {
   // Connect to Database
   config = {
     ...config,
-    logging: function () { fastify.log.debug.apply(fastify.log, arguments) }
+    // logging: function () { fastify.log.debug.apply(fastify.log, arguments) }
+    logging: false
   }
   try {
     if (config.use_env_variable) {

@@ -150,17 +150,27 @@ $(document).ready(() => {
         </div>
         `)
         $('.fab').css('right', 'calc( 50% - 40px )')
+        $('#main-spinner').fadeOut('fast', function () {
+          $('.dashboard').fadeIn()
+          $('.fab').css('display', 'flex')
+        })
       } else {
-        console.log(response)
         response.forEach(recording => {
-          $('#all-recordings').append(`
-          <a class="thumbnail" href="1">
-            <img src="https://dummyimage.com/290x160/ccc/000.png" class="img-responsive">
-            <div class="thumbnail-title">\
+          $('#all-recordings').append(
+            (recording.status === 'PENDING' || recording.status === 'DOWNLOADING'
+              ? `<a class="thumbnail pending">
+              <img src="http://localhost:3000/img/pending.png" class="img-responsive">
+              <div class="thumbnail-title">\
+                <h4>${recording.title}</h4>
+                <p>11/12/26 11:28pm</p>
+              </div>`
+              : `<a class="thumbnail" href="http://localhost:3000/playback?id=${recording.user}&title=${recording.dirName}">
+              <img src="http://localhost:3000/storage/${recording.user}/${recording.dirName}/thumb.png" class="img-responsive">
+              <div class="thumbnail-title">\
                 <h4>${recording.title}</h4>
                 <p>${recording.status}</p>
-            </div>
-          </a>`)
+              </div>`) +
+            `</a>`)
         })
         $.ajax({
           url: 'recording?limit=4&orderBy=createdAt&order=DESC',
@@ -170,28 +180,33 @@ $(document).ready(() => {
           },
           success: (response, status) => {
             response.forEach(recording => {
-              $('#recent-recordings').append(`
-            <a class="thumbnail" href="1">
-              <img src="https://dummyimage.com/290x160/ccc/000.png" class="img-responsive">
+              $('#recent-recordings').append(
+                (recording.status === 'PENDING' || recording.status === 'DOWNLOADING'
+                  ? `<a class="thumbnail pending">
+              <img src="http://localhost:3000/img/pending.png" class="img-responsive">
               <div class="thumbnail-title">\
-                  <h4>${recording.title}</h4>
-                  <p>${recording.status}</p>
-              </div>
-            </a>`)
+                <h4>${recording.title}</h4>
+                <p>11/12/26 11:28pm</p>
+              </div>`
+                  : `<a class="thumbnail" href="http://localhost:3000/playback?id=${recording.user}&title=${recording.dirName}">
+              <img src="http://localhost:3000/storage/${recording.user}/${recording.dirName}/thumb.png" class="img-responsive">
+              <div class="thumbnail-title">\
+                <h4>${recording.title}</h4>
+                <p>${recording.status}</p>
+              </div>`) +
+            `</a>`)
+            })
+            $('#main-spinner').fadeOut('fast', function () {
+              $('.dashboard').fadeIn()
+              $('.fab').css('display', 'flex')
+              $('.footer').fadeIn()
+              $('#search-text').prop('disabled', false)
+              $('#search-btn').prop('disabled', false)
             })
           },
           error: errGuard
         })
       }
-      $('#main-spinner').fadeOut('fast', function () {
-        $('.dashboard').fadeIn()
-        $('.fab').css('display', 'flex')
-        if (!isEmpty) {
-          $('.footer').fadeIn()
-          $('#search-text').prop('disabled', false)
-          $('#search-btn').prop('disabled', false)
-        }
-      })
     },
     error: errGuard
   })

@@ -6,6 +6,7 @@ const issuer = config.get('issuer')
 /* ------------------------------- Middlewares ------------------------------ */
 
 fastify
+  .register(require('./fastify-sse'))
   .register(require('fastify-cookie'))
   .register(require('fastify-sensible')) // Sensible
   .register(require('fastify-helmet')) // Optimized Helmet
@@ -42,6 +43,7 @@ fastify
   .register(require('./encoder'))
   .register(require('./downloader'))
   .register(require('./scheduler'))
+  .register(require('./events'))
 /* --------------------------------- Routes --------------------------------- */
   .register(require('./routes/views'))
   .register(require('./routes/api'))

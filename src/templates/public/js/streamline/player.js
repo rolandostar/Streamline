@@ -1,6 +1,33 @@
 /* eslint-disable no-undef */
+
+function GetParameterValues (param) {
+  var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&')
+  for (var i = 0; i < url.length; i++) {
+    var p = url[i].split('=')
+    if (p[0] === param) {
+      return p[1]
+    }
+  }
+}
+
+// $(document).ready(function () {
+//   var id = GetParameterValues('id')
+//   var title = GetParameterValues('title')
+//   //var url = `http://localhost:3000/storage/${id}/${title}/manifest.mpd`
+//   var url = 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
+//   var player = dashjs.MediaPlayer().create()
+//   // player.updateSettings({
+//   //   streaming: {
+//   //     abr: {
+//   //       ABRStrategy: 'abrThroughput'
+//   //     }
+//   //   }
+//   // })
+//   player.initialize(document.querySelector('#video'), url, true)
+// })
+
 // ELEMENT SELECTORS
-var player = document.querySelector('.player')
+var player2 = document.querySelector('.player')
 var video = document.querySelector('#video')
 var playBtn = document.querySelector('.play-btn')
 var rewBtn = document.querySelector('.rew')
@@ -121,7 +148,7 @@ function exitFullscreen () {
 }
 var fullscreen = false
 function toggleFullscreen () {
-  fullscreen ? exitFullscreen() : launchIntoFullscreen(player)
+  fullscreen ? exitFullscreen() : launchIntoFullscreen(player2)
   fullscreen = !fullscreen
 }
 function handleKeypress (e) {
