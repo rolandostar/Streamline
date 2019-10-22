@@ -8,21 +8,17 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.INTEGER
     },
+    status: {
+      allowNull: false,
+      type: DataTypes.STRING(50)
+    },
     title: {
       allowNull: false,
-      type: DataTypes.STRING(100)
-    },
-    mpdPath: {
-      allowNull: true,
       type: DataTypes.STRING(100)
     },
     labels: {
       allowNull: true,
       type: DataTypes.STRING(100)
-    },
-    status: {
-      allowNull: false,
-      type: DataTypes.STRING(50)
     },
     dirName: {
       allowNull: true,

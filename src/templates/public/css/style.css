@@ -179,6 +179,11 @@ nav {
   padding: 5px;
 }
 
+.img-greyscale {
+  -webkit-filter: grayscale(100%);
+  filter: grayscale(100%);
+}
+
 .search-container {
   min-height: 100px;
 }

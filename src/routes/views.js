@@ -1,36 +1,36 @@
 'use strict'
 
+const pattern = require('../schemas/player')
+
 module.exports = function (fastify, opts, done) {
   fastify
     .get('/', {
-    }, (req, reply) => {
-      reply.view('dashboard.hbs', {})
+    }, (request, reply) => {
+      reply.view('dashboard.hbs')
     })
 
     .get('/login', {
-    }, (req, reply) => {
-      reply.view('login.hbs', {})
+    }, (request, reply) => {
+      reply.view('login.hbs')
     })
 
-    .get('/playback', (req, reply) => {
-      reply.view('player.hbs', {})
+    .get('/playback', {
+      schema: pattern.playback
+    }, (request, reply) => {
+      reply.view('player.hbs')
     })
 
-    .get('/account', (req, reply) => {
-      reply.view('account.hbs', {})
+    .get('/account', (request, reply) => {
+      reply.view('account.hbs')
     })
 
-    .get('/logout', (req, reply) => {
-      reply.view('logout.hbs', {})
+    .get('/logout', (request, reply) => {
+      reply.view('logout.hbs')
     })
 
-    .get('/sse-test', (req, reply) => {
-      reply.view('sse.hbs')
-    })
-
-    .get('/player2', (req, reply) => {
-      reply.view('player2.hbs')
-    })
+  .get('/sse-test', (request, reply) => {
+    reply.view('sse.hbs')
+  })
 
   done()
 }

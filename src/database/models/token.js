@@ -14,10 +14,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   }, {
     timestamps: true,
-    paranoid: true,
     createdAt: 'issuedAt',
-    updatedAt: 'renovatedAt',
-    deletedAt: 'expiredAt'
+    updatedAt: 'renovatedAt'
   })
 
   return Token

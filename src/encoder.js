@@ -115,7 +115,12 @@ async function encoder (fastify, opts) {
         })
         .on('progress', function (progress) {
           console.log('Processing: ' + progress.percent + '% done');
-          fastify.event.emit('progress')
+          fastify.event.emit('message', recordingInstance.id, {
+            source: 'encoder',
+            type: 'progress',
+            quality: '360p',
+            progress: progress.percent.toFixed(1)
+          })
         })
         .on('error', function (err, stdout, stderr) {
           console.log('Cannot process video: ' + err.message);
@@ -141,6 +146,12 @@ async function encoder (fastify, opts) {
           })
           .on('progress', function (progress) {
             console.log('Processing: ' + progress.percent + '% done');
+            fastify.event.emit('message', recordingInstance.id, {
+              source: 'encoder',
+              type: 'progress',
+              quality: '480p',
+              progress: progress.percent.toFixed(1)
+            })
           })
           .on('error', function (err, stdout, stderr) {
             console.log('Cannot process video: ' + err.message);
@@ -166,6 +177,12 @@ async function encoder (fastify, opts) {
             })
             .on('progress', function (progress) {
               console.log('Processing: ' + progress.percent + '% done');
+              fastify.event.emit('message', recordingInstance.id, {
+                source: 'encoder',
+                type: 'progress',
+                quality: '720p',
+                progress: progress.percent.toFixed(1)
+              })
             })
             .on('error', function (err, stdout, stderr) {
               console.log('Cannot process video: ' + err.message);
@@ -191,16 +208,31 @@ async function encoder (fastify, opts) {
               })
               .on('progress', function (progress) {
                 console.log('Processing: ' + progress.percent + '% done');
+                fastify.event.emit('message', recordingInstance.id, {
+                  source: 'encoder',
+                  type: 'progress',
+                  quality: '1080p',
+                  progress: progress.percent.toFixed(1)
+                })
               })
               .on('error', function (err, stdout, stderr) {
                 console.log('Cannot process video: ' + err.message);
               })
               .on('end', function (stdout, stderr) {
                 console.log('Transcoding succeeded !');
-                recordingInstance.update({ status: 'ENCODED' })
+                fastify.event.emit('message', recordingInstance.id, {
+                  source: 'encoder',
+                  type: 'done'
+                })
+                recordingInstance.update({ status: 'PACKAGING' })
     childProcess.execFile('../../../modules/packager', mpdArgs, { cwd }, (error, stdout, stderr) => {
       if (error) fastify.log.error(error)
       else fastify.log.warn('Finished packaging')
+      recordingInstance.update({ status: 'READY' })
+      fastify.event.emit('message', recordingInstance.id, {
+        source: 'packager',
+        type: 'done'
+      })
     })
               })
               .save(path.join(cwd, 'h264_high_1080p_6000.mp4'))

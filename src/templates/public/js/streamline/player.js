@@ -10,24 +10,35 @@ function GetParameterValues (param) {
   }
 }
 
-// $(document).ready(function () {
-//   var id = GetParameterValues('id')
-//   var title = GetParameterValues('title')
-//   //var url = `http://localhost:3000/storage/${id}/${title}/manifest.mpd`
-//   var url = 'https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd'
-//   var player = dashjs.MediaPlayer().create()
-//   // player.updateSettings({
-//   //   streaming: {
-//   //     abr: {
-//   //       ABRStrategy: 'abrThroughput'
-//   //     }
-//   //   }
-//   // })
-//   player.initialize(document.querySelector('#video'), url, true)
-// })
+var id = GetParameterValues('id')
+var title = GetParameterValues('title')
+var storageUri = `http://localhost:3000/storage/${id}/${title}`
+
+function initApp () {
+  $('#video').attr('poster', storageUri + '/thumb.png')
+  shaka.polyfill.installAll()
+  if (shaka.Player.isBrowserSupported()) initPlayer()
+  else console.error('Browser not supported!')
+}
+
+function initPlayer () {
+  var video = document.getElementById('video')
+  var player = new shaka.Player(video)
+  window.player = player
+  player.addEventListener('error', onErrorEvent)
+  if (GetParameterValues('debug') === '1') {
+    player.load('https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd').catch(onError)
+  } else {
+    player.load(storageUri + '/manifest.mpd').catch(onError)
+  }
+}
+
+function onErrorEvent (event) { onError(event.detail) }
+function onError (error) { console.error('Error code', error.code, 'object', error) }
+document.addEventListener('DOMContentLoaded', initApp)
 
 // ELEMENT SELECTORS
-var player2 = document.querySelector('.player')
+var playerElement = document.querySelector('.player')
 var video = document.querySelector('#video')
 var playBtn = document.querySelector('.play-btn')
 var rewBtn = document.querySelector('.rew')
@@ -46,7 +57,6 @@ let timer
 let fadeInBuffer = false
 
 // Hide mouse cursor and overlay on inactivity
-
 function activity () {
   if (!fadeInBuffer) {
     if (timer) {
@@ -63,7 +73,7 @@ function activity () {
     $('.player').css({ cursor: 'none' })
     $('.controls').css({ opacity: 0 })
     fadeInBuffer = true
-  }, 2000)
+  }, 1150)
 }
 $('.player').css({ cursor: 'default' })
 activity()
@@ -148,7 +158,7 @@ function exitFullscreen () {
 }
 var fullscreen = false
 function toggleFullscreen () {
-  fullscreen ? exitFullscreen() : launchIntoFullscreen(player2)
+  fullscreen ? exitFullscreen() : launchIntoFullscreen(playerElement)
   fullscreen = !fullscreen
 }
 function handleKeypress (e) {

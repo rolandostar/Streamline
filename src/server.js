@@ -57,5 +57,22 @@ fastify
       .type('text/plain')
       .send(error)
   })
+  .after(() => {
+    let index = 0
+    const interval = setInterval(() => {
+      if (index >= 100) index = 0
+      fastify.event.emit('message', 21, {
+        source: 'encoder',
+        type: 'progress',
+        quality: '1080p',
+        progress: index++
+      })
+      fastify.event.emit('message', 20, {
+        source: 'downloader',
+        type: 'progress',
+        progress: index
+      })
+    }, 500)
+  })
 
 module.exports = fastify
