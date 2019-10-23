@@ -25,13 +25,18 @@ module.exports.list = async function (request, reply) {
   const { Recording, Job } = this.sequelize.models
   const { limit, orderBy, order, readyOnly, chronological } = request.query
   const recordings = await Recording.findAll({
-    order: chronological ? [ [orderBy, order] ] : [],
+    order: chronological ? [[Job, 'endDate', 'DESC']] : [ [orderBy, order] ],
     limit,
     include: {
       model: Job,
-      order: chronological ? [ ['endDate', 'DESC'] ] : []
+      paranoid: false
     },
-    where: readyOnly ? { status: 'READY' } : {}
+    where: readyOnly ? {
+      UserId: request.user.id,
+      status: 'READY'
+    } : {
+      UserId: request.user.id
+    }
   })
   reply.send(formatPayload(recordings))
 }

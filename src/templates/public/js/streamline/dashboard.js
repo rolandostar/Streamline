@@ -157,7 +157,7 @@ $.ajax({
   success: (response1, status) => {
     recentRecordings = response1
     $.ajax({
-      url: 'recording',
+      url: 'recording?chronological=true',
       type: 'GET',
       beforeSend: function (request) {
         request.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('Authorization'))

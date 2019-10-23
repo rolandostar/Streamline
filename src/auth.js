@@ -27,7 +27,7 @@ async function auth (fastify, opts) {
       ...fastify.jwt.options.sign,
       jwtid: request.user.jti
     }
-    const token = fastify.jwt.sign({ username: request.user.username }, jwtOptions)
+    const token = fastify.jwt.sign({ id: request.user.id, username: request.user.username }, jwtOptions)
     reply.send({ token })
   })
 
@@ -66,7 +66,7 @@ async function auth (fastify, opts) {
       ...fastify.jwt.options.sign,
       jwtid: tokenInstance.id.toString()
     }
-    const token = fastify.jwt.sign({ username: user.username }, jwtOptions)
+    const token = fastify.jwt.sign({ id: user.id, username: user.username }, jwtOptions)
     reply.send({ token, username })
   })
 }
