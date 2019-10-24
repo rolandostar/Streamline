@@ -33,8 +33,10 @@
   height: 100%;
 	box-sizing: border-box;
   background-color: rgba(0,0,0,0.7);
+  /*
   opacity: 1;
-	transition: all 0.2s ease-in 5s;
+  transition: all 0.2s ease-in 5s;
+  */
 }
 .controls-main {
 	width: 80%;

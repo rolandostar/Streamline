@@ -14,11 +14,27 @@ var id = GetParameterValues('id')
 var title = GetParameterValues('title')
 var storageUri = `http://localhost:3000/storage/${id}/${title}`
 
+$(document).idle({
+  onIdle: function () {
+    $('.player').css({ cursor: 'none' })
+    $('.controls').animate({ opacity: 0 }, 80)
+  },
+  onActive: function () {
+    $('.player').css({ cursor: 'default' })
+    $('.controls').animate({ opacity: 1 }, 80)
+  },
+  onHide: function () {
+    $('.controls').css({ opacity: 1 })
+  },
+  idle: 1280
+})
+
 function initApp () {
   $('#video').attr('poster', storageUri + '/thumb.png')
   shaka.polyfill.installAll()
   if (shaka.Player.isBrowserSupported()) initPlayer()
   else console.error('Browser not supported!')
+  $('.player').css({ cursor: 'default' })
 }
 
 function initPlayer () {
@@ -53,15 +69,16 @@ var fullscreenBtn = document.querySelector('.fullscreen')
 
 // GLOBAL VARS
 let lastVolume = 1
-let timer
+let timer = null
 let fadeInBuffer = false
 
 // Hide mouse cursor and overlay on inactivity
 function activity () {
+  console.log('activty!')
   if (!fadeInBuffer) {
     if (timer) {
       clearTimeout(timer)
-      timer = 0
+      timer = null
     }
     $('html').css({ cursor: '' })
   } else {
@@ -75,8 +92,6 @@ function activity () {
     fadeInBuffer = true
   }, 1150)
 }
-$('.player').css({ cursor: 'default' })
-activity()
 
 // PLAYER FUNCTIONS
 function togglePlay () {
@@ -162,7 +177,7 @@ function toggleFullscreen () {
   fullscreen = !fullscreen
 }
 function handleKeypress (e) {
-  activity()
+  // activity()
   switch (e.key) {
     case ' ':
       togglePlay()
@@ -218,7 +233,7 @@ pip.addEventListener('click', async e => {
 })
 
 // EVENT LISTENERS
-$(document).mousemove(activity)
+// $(document).mousemove(activity)
 playBtn.addEventListener('click', togglePlay)
 video.addEventListener('click', togglePlay)
 video.addEventListener('play', togglePlayBtn)

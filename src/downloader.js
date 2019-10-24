@@ -15,164 +15,165 @@ async function downloader (fastify, opts) {
     const user = await jobInstance.getUser()
     const ytDownloader = './modules/youtube-dl'
     const dateStart = new Date(jobInstance.startDate)
-    const dateEnd = new Date(jobInstance.endDate)
-    const timeDiff = (dateEnd.getTime() - dateStart.getTime()) / 1000
-    fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] "${recording.title}"\n      URL: ${jobInstance.source}\nFecha Fin: ${jobInstance.endDate}\n Segundos: ${timeDiff}\n  Usuario: ${user.username}`)
+    const durationSeconds = timemarkToSeconds(jobInstance.duration)
+
+    if (!fs.existsSync(`storage/${user.id}`)) fs.mkdirSync(`storage/${user.id}`)
+    fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] "${recording.title}"\n      URL: ${jobInstance.source}\n Duración: ${durationSeconds} segundos\n  Usuario: ${user.username}`)
+    fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Attempting to find dual track urls...`)
+    recording.update({ status: 'RESOLVING' })
     Promise.all([
       execFile(ytDownloader, [
+        `${jobInstance.source}`,
         '--get-url',
-        '-f', 'bestvideo[height<=?1080]',
-        `${jobInstance.source}`
+        '-f', 'bestvideo[height<=?1080]'
       ]),
       execFile(ytDownloader, [
+        `${jobInstance.source}`,
         '--get-url',
-        '-f', 'bestaudio',
-        `${jobInstance.source}`
+        '-f', 'bestaudio'
       ]),
       execFile(ytDownloader, [
+        `${jobInstance.source}`,
         '--get-filename',
+        '-f', 'bestvideo[height<=?1080]',
         '--restrict-filenames',
         '-o', `storage/${user.id}/${dateStart.getTime() / 1000}-%(title)s/original-%(height)s.mp4`,
-        '-f', 'bestvideo[height<=?1080]',
-        `${jobInstance.source}`
       ])
     ]).then(function (values) {
       const [ { stdout: ytVideoUrl }, { stdout: ytAudioUrl }, { stdout: ytVideoFilename } ] = values
-      fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Detected dual track stream.`)
+      fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Dual stream available. Begin download...`)
       fastify.log.debug(`=> Video Track: ${ytVideoUrl}`)
       fastify.log.debug(`=> Audio Track: ${ytAudioUrl}`)
       const videoFileName = ytVideoFilename.trim()
       const dir = path.dirname(videoFileName)
       if (!fs.existsSync(dir)) fs.mkdirSync(dir)
-      ffmpeg(ytVideoUrl.trim())
-        .on('start', function (commandLine) { fastify.log.debug(`=> FFMPEG Video(only) command: ${commandLine}`) })
-        .on('progress', function (progress) {
-          console.log(progress)
-          if (timemarkToSeconds(progress.timemark) > 3) this.ffmpegProc.stdin.write('q') // Exit once timeDiff is reached
-        })
-        .on('error', function (err, stdout, stderr) { fastify.log.error(`=> FFMPEG Video(only) error: ${err.message}`) })
-        .on('end', function (stdout, stderr) {
-          fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Video(Only) Finished download`)
-        })
-        .save(videoFileName)
-      ffmpeg(ytAudioUrl.trim())
-        .on('start', function (commandLine) { fastify.log.debug(`=> FFMPEG Audio(only) command: ${commandLine}`) })
-        .on('progress', function (progress) {
-          console.log(progress)
-        })
-        .on('error', function (err, stdout, stderr) { fastify.log.error(`=> FFMPEG Audio(only) error: ${err.message}`) })
-        .on('end', function (stdout, stderr) {
-          fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Audio(Only) Finished download`)
-        })
-        .save(dir + '/audio.mp4')
-    }).catch(function (reason) {
-      console.error('fail\n' + reason)
-      process.stdout.write('attempting best single track...')
-
+      recording.update({ status: 'DOWNLOADING', dirName: path.basename(dir) })
       Promise.all([
-        execFile(ytDownloader, [
-          '--get-filename',
-          '-f', 'best[height<=?1080]',
-          `${jobInstance.source}`
-        ]),
+        new Promise((resolve, reject) => {
+          ffmpeg(ytVideoUrl.trim())
+            .duration(durationSeconds)
+            .on('start', function (commandLine) { fastify.log.debug(`=> FFMPEG Video(only) command: ${commandLine}`) })
+            .on('progress', function (progress) {
+              const currentProgress = (timemarkToSeconds(progress.timemark) * 100) / durationSeconds
+              fastify.log.debug(`FFMPEG FFMPEG Video(only) progress: ${currentProgress}%`)
+            })
+            .on('error', function (err, stdout, stderr) {
+              fastify.log.error(`=> FFMPEG Video(only) error: ${err.message}`)
+              reject(err)
+            })
+            .on('end', function (stdout, stderr) {
+              fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Video(Only) Finished download`)
+              resolve()
+            })
+            .save(videoFileName)
+        }),
+        new Promise((resolve, reject) => {
+          ffmpeg(ytAudioUrl.trim())
+            .duration(durationSeconds)
+            .on('start', function (commandLine) { fastify.log.debug(`=> FFMPEG Audio(only) command: ${commandLine}`) })
+            .on('progress', function (progress) {
+              const currentProgress = (timemarkToSeconds(progress.timemark) * 100) / durationSeconds
+              fastify.log.debug(`FFMPEG FFMPEG Audio(only) progress: ${currentProgress}%`)
+            })
+            .on('error', function (err, stdout, stderr) {
+              fastify.log.error(`=> FFMPEG Audio(only) error: ${err.message}`)
+              reject(err)
+            })
+            .on('end', function (stdout, stderr) {
+              fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Audio(Only) Finished download`)
+              resolve()
+            })
+            .save(dir + '/audio.mp4')
+        })
+      ]).then(function (values) {
+        const tg = new ThumbnailGenerator({
+          sourcePath: videoFileName,
+          thumbnailPath: dir
+        })
+        tg.generateOneByPercent(30, { size: '290x160', filename: 'thumb.png' })
+        jobInstance.destroy()
+        fastify.encodeVideo(recording)
+      }).catch(function (reason) {
+        recording.update({ status: 'DOWNLOAD_ERROR' })
+      })
+    }).catch(function (reason) {
+      fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Attempting to find single track url...`)
+      Promise.all([
         execFile(ytDownloader, [
           '--get-url',
           '-f', 'best[height<=?1080]',
           `${jobInstance.source}`
+        ]),
+        execFile(ytDownloader, [
+          '--get-filename',
+          '--restrict-filenames',
+          '-o', `storage/${user.id}/${dateStart.getTime() / 1000}-%(title)s/original-%(height)s.mp4`,
+          '-f', 'best[height<=?1080]',
+          `${jobInstance.source}`
         ])
-      ])
-
-      execFile(ytDownloader, [
-        '--get-url',
-        '-f', 'best[height<=?1080]',
-        `${jobInstance.source}`
-      ]).then(function ({ stdout: ytAVUrl }) {
-        console.log('success')
-        console.log(`=> Video/Audio: ${ytAVUrl}`)
-        ffmpeg(ytAVUrl.trim())
-          .on('progress', function (progress) {
-            console.log(timemarkToSeconds(progress.timemark))
+      ]).then(function (values) {
+        const [ { stdout: ytAVUrl }, { stdout: ytVideoFilename } ] = values
+        fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Single stream available. Begin download...`)
+        fastify.log.debug(`=> Video/Audio: ${ytAVUrl}`)
+        const videoFileName = ytVideoFilename.trim()
+        const dir = path.dirname(videoFileName)
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir)
+        recording.update({ status: 'DOWNLOADING', dirName: path.basename(dir) })
+        Promise.all([
+          new Promise((resolve, reject) => {
+            ffmpeg(ytAVUrl.trim())
+              .duration(durationSeconds)
+              .noAudio()
+              .on('start', function (commandLine) { fastify.log.debug(`=> FFMPEG Audio+Video (Video Portion) command: ${commandLine}`) })
+              .on('progress', function (progress) {
+                const currentProgress = (timemarkToSeconds(progress.timemark) * 100) / durationSeconds
+                fastify.log.debug(`FFMPEG Audio+Video(Video Portion) progress: ${currentProgress}%`)
+              })
+              .on('error', function (err, stdout, stderr) {
+                fastify.log.error(`=> FFMPEG Audio+Video error: ${err.message}`)
+                reject(err)
+              })
+              .on('end', function (stdout, stderr) {
+                fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Audio+Video (Video Portion) Finished download`)
+                resolve()
+              })
+              .save(videoFileName)
+          }),
+          new Promise((resolve, reject) => {
+            ffmpeg(ytAVUrl.trim())
+              .duration(durationSeconds)
+              .noVideo()
+              .on('start', function (commandLine) { fastify.log.debug(`=> FFMPEG Audio+Video (Audio Portion) command: ${commandLine}`) })
+              .on('progress', function (progress) {
+                const currentProgress = (timemarkToSeconds(progress.timemark) * 100) / durationSeconds
+                fastify.log.debug(`FFMPEG Audio+Video(Audio Portion) progress: ${currentProgress}%`)
+              })
+              .on('error', function (err, stdout, stderr) {
+                fastify.log.error(`=> FFMPEG Audio+Video (Audio Portion) error: ${err.message}`)
+                reject(err)
+              })
+              .on('end', function (stdout, stderr) {
+                fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Audio+Video (Audio Portion) Finished download`)
+                resolve()
+              })
+              .save(dir + '/audio.mp4')
           })
-          .save('audiovideo.mp4')
-      }).catch(error => {
-        console.error('fail\n' + error)
-        // TODO: NOT SUPPORTED!!
+        ]).then(function (values) {
+          const tg = new ThumbnailGenerator({
+            sourcePath: videoFileName,
+            thumbnailPath: dir
+          })
+          tg.generateOneByPercent(30, { size: '290x160', filename: 'thumb.png' })
+          jobInstance.destroy()
+          fastify.encodeVideo(recording)
+        }).catch(function (reason) {
+          recording.update({ status: 'DOWNLOAD_ERROR' })
+        })
+      }).catch(function (reason) {
+        fastify.log.error(reason)
+        recording.update({ status: 'RESOLVE_ERROR' })
       })
     })
-
-    // const { stdout: ytVideoUrl, stderr: errVideo } = await
-    // const { stdout: ytAudioUrl, stderr: errAudio } = await
-    // if (!errVideo && !errAudio) {
-    //   console.log('success')
-    //   console.log(`=> Video Track: ${ytVideoUrl}`)
-    //   console.log(`=> Audio Track: ${ytAudioUrl}`)
-    // } else {
-
-
-
-    //   if (!stderr) {
-    //     console.log('success')
-    //     console.log(`=> Video/Audio: ${ytAVUrl}`)
-    //   } else {
-    //     console.error('fail\n' + stderr)
-    //   }
-    // }
-    // try {
-    //   const ytFilename = childProcess.execFileSync(ytModule, ytArgs)
-
-    //   // get url for best video with height lower or at 1080 with youtube-dl
-    //   ytArgs[0] = '--get-url'
-    //   const ytVideoUrl = childProcess.execFileSync(ytModule, ytArgs)
-
-    //   // get url for best audio with youtube-dl
-    //   ytArgs[3] = 'bestaudio'
-    //   const ytAudioUrl = childProcess.execFileSync(ytModule, ytArgs)
-    // } catch (err) {
-    //   fastify.log.error(err)
-    //   return
-    // }
-
-    // download both using fluent, into separate files
-    // try {
-    //   ffmpeg(ytVideoUrl)
-    // } catch (err) { console.log(err) }
-
-
-    // await jobInstance.destroy()
-    // try {
-    //   const stdout = childProcess.execFileSync(execFilePath, args)
-    //   const dir = path.basename(path.dirname(stdout.toString()))
-    //   await recording.update({
-    //     dirName: dir,
-    //     status: 'DOWNLOADING'
-    //   })
-    //   args.shift()
-    //   const child = childProcess.execFile(execFilePath, args, async (error, stdout, stderr) => {
-    //     if (error) {
-    //       fastify.log.error(error)
-    //       await recording.update({ status: 'DOWNLOAD_ERROR' })
-    //     } else {
-    //       fastify.log.warn(`Finished download of "${recording.title}" from ${jobInstance.source} for user: ${user.username}`)
-    //       await recording.update({ status: 'DOWNLOADED' })
-    //       const videoDir = path.join(`./storage/${user.id}`, dir)
-    //       const tg = new ThumbnailGenerator({
-    //         sourcePath: path.join(videoDir, 'original.mp4'),
-    //         thumbnailPath: videoDir
-    //       })
-    //       const thumbnailFilename = await tg.generateOneByPercent(35, { size: '290x160', filename: 'thumb.png' })
-    //       fastify.log.info(thumbnailFilename)
-    //       fastify.encodeVideo(recording)
-    //     }
-    //   })
-    //   // Kill at dateEnd
-    //   fastify.schedule.scheduleJob(dateEnd, function (child) {
-    //     fastify.log.warn('End Date Reached - Attempting to stop download.')
-    //     child.kill('SIGINT')
-    //   }.bind(null, child))
-    // } catch (err) {
-    //   fastify.log.error(err)
-    //   await recording.update({ status: 'RESOLVE_ERROR' })
-    // }
   })
 }
 

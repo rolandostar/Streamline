@@ -1,7 +1,7 @@
 'use strict'
 
-const ctrl = require('../controllers/task')
-const pattern = require('../schemas/task')
+const ctrl = require('../controllers/job')
+const pattern = require('../schemas/job')
 
 module.exports = function (fastify, opts, done) {
   fastify

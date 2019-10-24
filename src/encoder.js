@@ -115,7 +115,8 @@ async function encoder (fastify, opts) {
         })
         .on('progress', function (progress) {
           console.log('Processing: ' + progress.percent + '% done');
-          fastify.event.emit('message', recordingInstance.id, {
+          fastify.event.emit('message', {
+            target: recordingInstance.id,
             source: 'encoder',
             type: 'progress',
             quality: '360p',
@@ -146,7 +147,8 @@ async function encoder (fastify, opts) {
           })
           .on('progress', function (progress) {
             console.log('Processing: ' + progress.percent + '% done');
-            fastify.event.emit('message', recordingInstance.id, {
+            fastify.event.emit('message', {
+              target: recordingInstance.id,
               source: 'encoder',
               type: 'progress',
               quality: '480p',
@@ -177,7 +179,8 @@ async function encoder (fastify, opts) {
             })
             .on('progress', function (progress) {
               console.log('Processing: ' + progress.percent + '% done');
-              fastify.event.emit('message', recordingInstance.id, {
+              fastify.event.emit('message', {
+                target: recordingInstance.id,
                 source: 'encoder',
                 type: 'progress',
                 quality: '720p',
@@ -208,7 +211,8 @@ async function encoder (fastify, opts) {
               })
               .on('progress', function (progress) {
                 console.log('Processing: ' + progress.percent + '% done');
-                fastify.event.emit('message', recordingInstance.id, {
+                fastify.event.emit('message', {
+                  target: recordingInstance.id,
                   source: 'encoder',
                   type: 'progress',
                   quality: '1080p',
@@ -220,7 +224,8 @@ async function encoder (fastify, opts) {
               })
               .on('end', function (stdout, stderr) {
                 console.log('Transcoding succeeded !');
-                fastify.event.emit('message', recordingInstance.id, {
+                fastify.event.emit('message', {
+                  target: recordingInstance.id,
                   source: 'encoder',
                   type: 'done'
                 })
@@ -229,7 +234,8 @@ async function encoder (fastify, opts) {
       if (error) fastify.log.error(error)
       else fastify.log.warn('Finished packaging')
       recordingInstance.update({ status: 'READY' })
-      fastify.event.emit('message', recordingInstance.id, {
+      fastify.event.emit('message', {
+        target: recordingInstance.id,
         source: 'packager',
         type: 'done'
       })

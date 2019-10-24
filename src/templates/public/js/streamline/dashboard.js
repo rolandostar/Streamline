@@ -68,7 +68,7 @@ $('#new-recording-job').on('submit', function (event) {
   data.forEach(element => { payload[element.name] = element.value })
   renewToken()
   $.ajax({
-    url: 'task',
+    url: 'job',
     type: 'POST',
     beforeSend: function (request) {
       request.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('Authorization'))
@@ -96,6 +96,37 @@ const source = new EventSource(`/recording/liveUpdate`)
 source.addEventListener('error', function (e) {
   if (e.eventPhase === EventSource.CLOSED) source.close()
 }, false)
+
+source.addEventListener('message', function (e) {
+  let data = JSON.parse(e.data)
+  console.log(data)
+  switch (data.source) {
+    case 'downloader':
+      if (data.type === 'progress') {
+        elementsSubtitle = $(`[id=${data.target}_subtitle]`)
+        elements = $(`[id=${data.target}_progress]`)
+        elementsSubtitle.text(`Descargando: ` + data.progress + '%')
+        elements.css('width', data.progress + '%')
+      } else if (data.type === 'done') {
+        // transition to encoder
+      }
+      break
+    case 'encoder':
+      if (data.type === 'progress') {
+        elementsSubtitle = $(`[id=${data.target}_subtitle]`)
+        elementsSubtitle.text(`Transcodificando: ` + data.quality)
+        elements = $(`[id=${data.target}_progress]`)
+        elements.css('width', data.progress + '%')
+        elements.text(data.progress + '%')
+      } else if (data.type === 'done') {
+        // transition to packager
+      }
+      break
+    case 'packager':
+
+      break
+  }
+})
 
 /* ----------------- Utility for formatting recording grids ----------------- */
 function addRecordingTo (parentElement, recording) {
@@ -193,39 +224,7 @@ $.ajax({
             $('.fab').css('display', 'flex')
           })
         } else {
-          response.forEach(recording => {
-            addRecordingTo($('#all-recordings'), recording)
-            source.addEventListener(recording.id, function (e) {
-              let data = JSON.parse(e.data)
-              console.log(data)
-              switch (data.source) {
-                case 'downloader':
-                  if (data.type === 'progress') {
-                    elementsSubtitle = $(`[id=${recording.id}_subtitle]`)
-                    elements = $(`[id=${recording.id}_progress]`)
-                    elementsSubtitle.text(`Descargando: ` + data.progress + '%')
-                    elements.css('width', data.progress + '%')
-                  } else if (data.type === 'done') {
-                    // transition to encoder
-                  }
-                  break
-                case 'encoder':
-                  if (data.type === 'progress') {
-                    elementsSubtitle = $(`[id=${recording.id}_subtitle]`)
-                    elementsSubtitle.text(`Transcodificando: ` + data.quality)
-                    elements = $(`[id=${recording.id}_progress]`)
-                    elements.css('width', data.progress + '%')
-                    elements.text(data.progress + '%')
-                  } else if (data.type === 'done') {
-                    // transition to packager
-                  }
-                  break
-                case 'packager':
-
-                    break
-              }
-            })
-          })
+          response.forEach(recording => { addRecordingTo($('#all-recordings'), recording) })
           recentRecordings.forEach(recording => { addRecordingTo($('#recent-recordings'), recording) })
 
           $('#main-spinner').fadeOut('fast', function () {

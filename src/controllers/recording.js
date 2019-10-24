@@ -25,7 +25,7 @@ module.exports.list = async function (request, reply) {
   const { Recording, Job } = this.sequelize.models
   const { limit, orderBy, order, readyOnly, chronological } = request.query
   const recordings = await Recording.findAll({
-    order: chronological ? [[Job, 'endDate', 'DESC']] : [ [orderBy, order] ],
+    order: chronological ? [[Job, 'startDate', 'DESC']] : [ [orderBy, order] ],
     limit,
     include: {
       model: Job,
@@ -66,7 +66,7 @@ module.exports.liveUpdate = function (request, reply) {
   //   reply.res.end()
   // })
 
-  this.event.on('message', (target, data) => {
-    reply.res.write(`event: ${target}\ndata: ${JSON.stringify(data)}\n\n`)
+  this.event.on('message', (data) => {
+    reply.res.write(`event: message\ndata: ${JSON.stringify(data)}\n\n`)
   })
 }

@@ -17,9 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
       allowNull: false
     },
-    endDate: {
-      type: DataTypes.DATE,
-      allowNull: false
+    duration: {
+      type: DataTypes.STRING(8),
+      allowNull: true
     }
   }, {
     paranoid: true,
