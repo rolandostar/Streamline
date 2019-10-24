@@ -225,7 +225,7 @@ async function encoder (fastify, opts) {
                   type: 'done'
                 })
                 recordingInstance.update({ status: 'PACKAGING' })
-    childProcess.execFile('../../../modules/packager', mpdArgs, { cwd }, (error, stdout, stderr) => {
+    childProcess.execFile(require('shaka-packager'), mpdArgs, { cwd }, (error, stdout, stderr) => {
       if (error) fastify.log.error(error)
       else fastify.log.warn('Finished packaging')
       recordingInstance.update({ status: 'READY' })

@@ -3,6 +3,7 @@ const config = require('config')
 const fastify = require('fastify')({ logger: config.logger })
 const jwtSecret = config.get('jwtSecret')
 const issuer = config.get('issuer')
+
 /* ------------------------------- Middlewares ------------------------------ */
 
 fastify

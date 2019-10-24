@@ -1,10 +1,13 @@
 module.exports = {
   logger: {
-    level: 'debug',
+    level: 'verbose',
     prettyPrint: {
       colorize: true,
       translateTime: 'SYS:HH:MM:ss',
       ignore: 'pid,hostname'
+    },
+    customLevels: {
+      verbose: 35
     }
   }
 }

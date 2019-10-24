@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
 let options = {
-  format: 'Y-MM-DD HH:mm:ss',
   locale: moment.locale('es'),
   icons: {
     time: 'fa fa-clock',
@@ -43,8 +42,18 @@ $('#acc').on('click', function (event) {
 })
 
 /* -------------------------------- Datetime -------------------------------- */
-$('#endDate').datetimepicker(options)
-$('#startDate').datetimepicker(options)
+$('#startDate').datetimepicker({
+  ...options,
+  format: 'Y-MM-DD HH:mm:ss',
+  showTodayButton: true,
+  useCurrent: false
+})
+$('#duration').datetimepicker({
+  ...options,
+  format: 'HH:mm:ss',
+  // defaultDate: '01/01/1970 00:00:00'
+  useCurrent: 'year'
+})
 
 /* -------------------------- Error Message Dismiss ------------------------- */
 $('div.alert').on('click', 'button.close', function () {

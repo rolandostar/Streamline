@@ -4,6 +4,9 @@ storage/*/**
 
 *.sqlite3
 
+## Streamline
+bin/
+
 ## SSL Certs
 *.crt
 *.cert
