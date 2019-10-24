@@ -66,7 +66,7 @@ module.exports.liveUpdate = function (request, reply) {
   //   reply.res.end()
   // })
 
-  this.event.on('message', (data) => {
+  this.sse.eventEmitter.on('message', (data) => {
     reply.res.write(`event: message\ndata: ${JSON.stringify(data)}\n\n`)
   })
 }

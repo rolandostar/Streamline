@@ -46,13 +46,15 @@ $('#startDate').datetimepicker({
   ...options,
   format: 'Y-MM-DD HH:mm:ss',
   showTodayButton: true,
-  useCurrent: false
+  useCurrent: false,
+  widgetPositioning: { vertical: 'top' }
 })
 $('#duration').datetimepicker({
   ...options,
   format: 'HH:mm:ss',
   // defaultDate: '01/01/1970 00:00:00'
-  useCurrent: 'year'
+  useCurrent: 'year',
+  widgetPositioning: { vertical: 'top' }
 })
 
 /* -------------------------- Error Message Dismiss ------------------------- */
@@ -154,7 +156,7 @@ function addRecordingTo (parentElement, recording) {
         </a>`
       break
     case 'ENCODING':
-      html = `<a class="thumbnail pending">
+      html = `<a class="thumbnail" href="http://localhost:3000/playback?id=${recording.user}&title=${recording.dirName}">
       <img src="http://localhost:3000/storage/${recording.user}/${recording.dirName}/thumb.png" class="img-responsive img-greyscale">
       <div class="thumbnail-title">\
         <h4 id="${recording.id + '_title'}">${recording.title}</h4>

@@ -7,7 +7,6 @@ const issuer = config.get('issuer')
 /* ------------------------------- Middlewares ------------------------------ */
 
 fastify
-  .register(require('./fastify-sse'))
   .register(require('fastify-cookie'))
   .register(require('fastify-sensible')) // Sensible
   .register(require('fastify-helmet')) // Optimized Helmet
@@ -44,7 +43,7 @@ fastify
   .register(require('./encoder'))
   .register(require('./downloader'))
   .register(require('./scheduler'))
-  .register(require('./events'))
+  .register(require('./sse'))
 /* --------------------------------- Routes --------------------------------- */
   .register(require('./routes/views'))
   .register(require('./routes/api'))
@@ -62,14 +61,14 @@ fastify
     // let index = 0
     // setInterval(() => {
     //   if (index >= 100) index = 0
-    //   fastify.event.emit('message', {
+    //   fastify.sse.reportProgress({
     //     target: 21,
     //     source: 'encoder',
     //     type: 'progress',
     //     quality: '1080p',
     //     progress: index++
     //   })
-    //   fastify.event.emit('message', {
+    //   fastify.sse.reportProgress({
     //     target: 20,
     //     source: 'downloader',
     //     type: 'progress',
