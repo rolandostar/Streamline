@@ -143,12 +143,24 @@ function addRecordingTo (parentElement, recording) {
         <p id="${recording.id + '_subtitle'}">${when.toLocaleString('es-MX')}</p>
       </div>`
       break
+    case 'RESOLVING':
+      html = `<a class="thumbnail pending">
+        <img src="http://localhost:3000/img/pending.png" class="img-responsive">
+        <div class="thumbnail-title">\
+          <h4 id="${recording.id + '_title'}">${recording.title}</h4>
+          <p id="${recording.id + '_subtitle'}">Adquiriendo fuente...</p>
+          <div class="progress no-margin">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="100" aria-valuemax="100" style="width: 100%"></div>
+        </div>
+        </div>
+        </a>`
+      break
     case 'DOWNLOADING':
       html = `<a class="thumbnail pending">
         <img src="http://localhost:3000/img/pending.png" class="img-responsive">
         <div class="thumbnail-title">\
           <h4 id="${recording.id + '_title'}">${recording.title}</h4>
-          <p id="${recording.id + '_subtitle'}">${recording.status}</p>
+          <p id="${recording.id + '_subtitle'}">Descargando: 0%</p>
           <div class="progress no-margin">
           <div id="${recording.id + '_progress'}" class="progress-bar bg-warning"></div>
         </div>
@@ -168,10 +180,12 @@ function addRecordingTo (parentElement, recording) {
       </a>`
       break
     case 'READY':
+      const downloadedAt = new Date(recording.startDate)
       html = `<a class="thumbnail" href="http://localhost:3000/playback?id=${recording.user}&title=${recording.dirName}">
         <img src="http://localhost:3000/storage/${recording.user}/${recording.dirName}/thumb.png" class="img-responsive">
         <div class="thumbnail-title">\
           <h4 id="${recording.id + '_title'}">${recording.title}</h4>
+          <small class="text-light">${downloadedAt.toLocaleString('es-MX')}</small>
         </div>
         </div>
         </a>`
@@ -205,7 +219,6 @@ $.ajax({
         request.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem('Authorization'))
       },
       success: (response, status) => {
-        console.log(response.length)
         const isEmpty = response.length === 0
         if (isEmpty) {
           $('.dashboard').empty()

@@ -7,6 +7,7 @@ const { timemarkToSeconds } = require('./util')
 function scheduler (fastify, opts, done) {
   const { Job, Recording } = fastify.sequelize.models
   fastify.decorate('schedule', require('node-schedule'))
+  return done()
   Recording.findAll({ include: { model: Job, paranoid: false } }).then(function (recordings) {
     for (let index = 0; index < recordings.length; index++) {
       const recording = recordings[index]

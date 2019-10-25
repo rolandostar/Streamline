@@ -16,12 +16,12 @@ var storageUri = `http://localhost:3000/storage/${id}/${title}`
 
 $(document).idle({
   onIdle: function () {
-    $('.player').css({ cursor: 'none' })
-    $('.controls').animate({ opacity: 0 }, 80)
+    $('body').css({ cursor: 'none' })
+    $('.controls').animate({ opacity: 0 }, 220)
   },
   onActive: function () {
-    $('.player').css({ cursor: 'default' })
-    $('.controls').animate({ opacity: 1 }, 80)
+    $('body').css({ cursor: 'default' })
+    $('.controls').animate({ opacity: 1 }, 270)
   },
   onHide: function () {
     $('.controls').css({ opacity: 1 })
@@ -34,19 +34,42 @@ function initApp () {
   shaka.polyfill.installAll()
   if (shaka.Player.isBrowserSupported()) initPlayer()
   else console.error('Browser not supported!')
-  $('.player').css({ cursor: 'default' })
+  $('body').css({ cursor: 'default' })
 }
 
+//FIXME seekbar is broken
+// when seeking, it keeps going even if video is buffering
 function initPlayer () {
   var video = document.getElementById('video')
   var player = new shaka.Player(video)
   window.player = player
+  // player.configure({
+  //   streaming: {
+  //     bufferBehind: 1,
+  //     bufferingGoal: 10,
+  //     durationBackoff: 1,
+  //     rebufferingGoal: 2,
+  //     safeSeekOffset: 5
+  //   }
+  // })
   player.addEventListener('error', onErrorEvent)
   if (GetParameterValues('debug') === '1') {
     player.load('https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd').catch(onError)
   } else {
     player.load(storageUri + '/manifest.mpd').catch(onError)
   }
+  player.addEventListener('adaptation', function (e) {
+    var tracks = player.getVariantTracks() // all tracks
+    tracks.forEach(function (t) {
+      if (t.active) { // an active track, that is, in use by the player right now
+        console.log(`Adapting resolution: ${t.type} ${t.width}x${t.height}`)
+      }
+    })
+  })
+  player.addEventListener('buffering', function (e) {
+    const buff = player.getBufferedInfo()
+    console.log(buff.total[0].end)
+  })
 }
 
 function onErrorEvent (event) { onError(event.detail) }
@@ -54,7 +77,6 @@ function onError (error) { console.error('Error code', error.code, 'object', err
 document.addEventListener('DOMContentLoaded', initApp)
 
 // ELEMENT SELECTORS
-var playerElement = document.querySelector('.player')
 var video = document.querySelector('#video')
 var playBtn = document.querySelector('.play-btn')
 var rewBtn = document.querySelector('.rew')
@@ -69,29 +91,6 @@ var fullscreenBtn = document.querySelector('.fullscreen')
 
 // GLOBAL VARS
 let lastVolume = 1
-let timer = null
-let fadeInBuffer = false
-
-// Hide mouse cursor and overlay on inactivity
-function activity () {
-  console.log('activty!')
-  if (!fadeInBuffer) {
-    if (timer) {
-      clearTimeout(timer)
-      timer = null
-    }
-    $('html').css({ cursor: '' })
-  } else {
-    $('.player').css({ cursor: 'default' })
-    $('.controls').css({ opacity: 1 })
-    fadeInBuffer = false
-  }
-  timer = setTimeout(function () {
-    $('.player').css({ cursor: 'none' })
-    $('.controls').css({ opacity: 0 })
-    fadeInBuffer = true
-  }, 1150)
-}
 
 // PLAYER FUNCTIONS
 function togglePlay () {
@@ -173,7 +172,7 @@ function exitFullscreen () {
 }
 var fullscreen = false
 function toggleFullscreen () {
-  fullscreen ? exitFullscreen() : launchIntoFullscreen(playerElement)
+  fullscreen ? exitFullscreen() : launchIntoFullscreen(document.querySelector('body'))
   fullscreen = !fullscreen
 }
 function handleKeypress (e) {
@@ -230,6 +229,36 @@ pip.addEventListener('click', async e => {
   } finally {
     pip.disabled = false
   }
+})
+
+let qs = document.querySelector('.qs')
+qs.addEventListener('click', async e => {
+  console.log(player.getBufferedInfo())
+  player.configure({ abr: { enabled: false } })
+  // player.load(storageUri + '/manifest.mpd').then(function () {
+  //   var track = player.getVariantTracks().filter(function (track) {
+  //     return track.width === 1920
+  //   }).pop()
+  //   if (track) {
+  //     console.log('Selecting variant track ', track)
+  //     player.selectVariantTrack(track, true)
+  //   }
+  // })
+
+  var track = player.getVariantTracks().filter(function (track) {
+    return track.height === 360
+  }).pop()
+  console.log(track)
+  if (track) {
+    console.log('Selecting variant track ', track)
+    player.selectVariantTrack(track, true)
+    console.log(player.getBufferedInfo())
+  }
+
+  // player.selectVideoTrack(trackId)
+  // const tracks = this.player.getVariantTracks()
+  // console.log(tracks[2])
+  // this.player.selectVariantTrack(tracks[2], true)
 })
 
 // EVENT LISTENERS

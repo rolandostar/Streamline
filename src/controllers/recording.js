@@ -10,7 +10,7 @@ function formatPayload (recordings) {
       dirName: recording.dirName,
       labels: recording.labels,
       status: recording.status,
-      createdAt: recording.createdAt,
+      startDate: recording.Job.startDate,
       user: recording.UserId
     }
     if (recording.status === 'PENDING') {

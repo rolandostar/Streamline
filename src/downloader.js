@@ -78,11 +78,6 @@ async function downloader (fastify, opts) {
               fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Video(Only) Finished download`)
               resolve()
             })
-            .thumbnail({
-              filename: 'thumb.png',
-              timestamps: '30%',
-              size: '290x190'
-            })
             .save(videoFileName)
         }),
         new Promise((resolve, reject) => {
@@ -113,6 +108,7 @@ async function downloader (fastify, opts) {
         job.destroy()
         fastify.encodeVideo(recording)
       }).catch(function (reason) {
+        fastify.log.error(reason)
         recording.update({ status: 'DOWNLOAD_ERROR' })
       })
     }).catch(function (reason) {
