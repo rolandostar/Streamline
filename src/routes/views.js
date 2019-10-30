@@ -37,5 +37,5 @@ module.exports = function (fastify, opts, done) {
       })
     }
     done()
-  })
+  }).catch(() => { done() })
 }

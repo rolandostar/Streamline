@@ -64,7 +64,8 @@ function scheduler (fastify, opts, done) {
       }
     }
     done()
-  })
+  // eslint-disable-next-line handle-callback-err
+  }).catch(function (err) { done() })
 }
 
 module.exports = fp(scheduler, {
