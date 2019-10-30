@@ -41,6 +41,14 @@ $('#acc').on('click', function (event) {
   })
 })
 
+$('#noDurationCheck').on('change', function (event) {
+  if ($('#noDurationCheck').is(':checked')) {
+    $('#duration').val('').prop('disabled', true)
+  } else {
+    $('#duration').prop('disabled', false)
+  }
+})
+
 /* -------------------------------- Datetime -------------------------------- */
 $('#startDate').datetimepicker({
   ...options,
@@ -68,6 +76,7 @@ $('#new-recording-job').on('submit', function (event) {
   const data = $('#new-recording-job').serializeArray()
   let payload = {}
   data.forEach(element => { payload[element.name] = element.value })
+  console.log(payload)
   renewToken()
   $.ajax({
     url: 'job',
@@ -84,7 +93,7 @@ $('#new-recording-job').on('submit', function (event) {
     error: (response, status) => {
       if (response.responseJSON.statusCode === 401) {
         localStorage.removeItem('Authorization')
-        location.replace('/login')
+        // location.replace('/login')
       } else {
         $('#err-text').text(response.responseJSON.message)
         $('.alert').css('opacity', 1).slideDown()
@@ -128,7 +137,7 @@ source.addEventListener('message', function (e) {
           `)
         })
         elementsSubtitle = $(`[id=${data.target}_subtitle]`)
-        elementsSubtitle.text('Descargando: 0%')
+        elementsSubtitle.text('Descargando: 0.0%')
       }
       break
     case 'downloader':

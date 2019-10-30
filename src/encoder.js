@@ -3,24 +3,22 @@
 const fp = require('fastify-plugin')
 const path = require('path')
 const fs = require('fs')
-const childProcess = require('child_process')
 const encoderConfigs = require('config').get('encoderConfigs')
 const ffmpeg = require('fluent-ffmpeg')
-const mpdArgs = [
-  'in=audio.mp4,stream=audio,output=audio.mp4',
-  '--mpd_output', 'manifest.mpd'
-]
 
 async function encoder (fastify, _opts) {
   fastify.decorate('encodeVideo', encodeVideo)
   async function encodeVideo (recording) {
+    const mpdArgs = [
+      'in=audio.mp4,stream=audio,output=audio.mp4',
+      '--mpd_output', 'manifest.mpd'
+    ]
     const user = await recording.getUser()
     fastify.log.warn('Encoding video...')
     const cwd = `storage/${user.id}/${recording.dirName}/`
-    const height = readHeightFromFile(cwd)
-    const input = 'original-' + height + '.mp4'
+    const { height, filename } = readHeightFromFile(cwd)
     const meta = {
-      input,
+      input: filename,
       cwd,
       livePush: fastify.sse.livePush,
       target: recording.id
@@ -35,21 +33,16 @@ async function encoder (fastify, _opts) {
         }
       }
     } catch (err) { console.error(err) }
-    // REVIEW Separate module?
     recording.update({ status: 'PACKAGING' })
     fastify.log.vdebug(`[PACKAGER] Generating manifest with arguments: \n${require('util').inspect(mpdArgs)}`)
-    childProcess.execFile(path.join(__dirname, '../bin/packager-linux'), mpdArgs, { cwd }, (error, _stdout, _stderr) => {
-      if (error) fastify.log.error(error)
-      else {
-        fastify.log.warn('Finished packaging')
-        recording.update({ status: 'READY' })
-        fastify.sse.livePush({
-          target: recording.id,
-          source: 'packager',
-          type: 'done',
-          downloadedAt: recording.createdAt
-        })
-      }
+    await fastify.generateManifest(mpdArgs, cwd)
+    fastify.log.warn('Finished packaging')
+    recording.update({ status: 'READY' })
+    fastify.sse.livePush({
+      target: recording.id,
+      source: 'packager',
+      type: 'done',
+      downloadedAt: recording.createdAt
     })
   }
 }
@@ -59,14 +52,17 @@ function readHeightFromFile (cwd) {
   for (let index = 0; index < array.length; index++) {
     const file = array[index]
     if (file.includes('original')) {
-      return file.substring(file.indexOf('-') + 1, file.indexOf('.'))
+      return {
+        height: file.substring(file.indexOf('-') + 1, file.indexOf('.')),
+        filename: file
+      }
     }
   }
 }
 
 function ffmpegWrapper (output, meta, params) {
   let options = [
-    '-c:a copy',
+    '-c:a aac',
     '-vf ' + params.filter,
     '-c:v libx264',
     '-profile:v ' + params.profile,

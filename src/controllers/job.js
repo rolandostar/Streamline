@@ -7,7 +7,7 @@ module.exports.delete = function (request, reply) { reply.send() }
 module.exports.create = async function (request, reply) {
   const { downloadVideo } = this
   const { Recording, Job, User } = this.sequelize.models
-  const { title, url, dateStart, duration } = request.body
+  const { title, url, dateStart, duration = 'None' } = request.body
   const startDate = new Date(dateStart)
   const nowDate = new Date()
   // if (endDate.getTime() <= startDate.getTime()) return reply.badRequest('Tiempo Fin debe ser mayor a Tiempo de Inicio')

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Streamline - Registro</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/fontawesome.min.css">
+    <link rel="stylesheet" href="css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <img src="/img/streamline_logo.png" alt="Streamline Logo" class="img-fluid logo" style="max-height: 15vh;">
+      </div>
+        <div class="row">
+          <div class="col-sm-9 col-md-7 col-lg-5 mx-auto">
+            <div class="my-4"></div>
+            {{!-- <div class="alert alert-danger collapse" role="alert">
+              Usuario/Contraseña incorrectos
+              <button type="button" class="close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div> --}}
+            <div class="card card-signin">
+              <div class="card-body">
+                <h5 class="card-title">Registro de primer usuario</h5>
+                <form id="login-form">
+                  <div class="form-group row">
+                    <label for="inputEmail3" class="col-sm-4 col-form-label text-right">Nuevo Usuario</label>
+                    <div class="col-sm-8">
+                      <input name="username" type="email" class="form-control" id="inputEmail3">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="inputPassword3" class="col-sm-4 col-form-label text-right">Contraseña</label>
+                    <div class="col-sm-8">
+                      <input name="password" type="password" class="form-control" id="inputPassword3">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="inputPassword3" class="col-sm-4 col-form-label text-right">Confirmación</label>
+                    <div class="col-sm-8">
+                      <input name="password" type="password" class="form-control" id="inputPassword3">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                      <button id="login-btn" type="submit" class="btn btn-lg btn-primary text-uppercase ml-auto btn-submit">Registrar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="row footer">
+        <div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-2 text-center text-muted">
+          <p>Obra licenciada bajo BSD-3-Clause</p>
+          <p class="h6">&copy<a class="text-green ml-2" href="https://rolandostar.com" target="_blank">Rolando Romero</a></p>
+        </div>
+        </hr>
+      </div>
+    </div>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/streamline/login.js"></script>
+  </body>
+</html>
+

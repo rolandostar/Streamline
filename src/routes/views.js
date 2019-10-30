@@ -9,11 +9,6 @@ module.exports = function (fastify, opts, done) {
       reply.view('dashboard.hbs')
     })
 
-    .get('/login', {
-    }, (request, reply) => {
-      reply.view('login.hbs')
-    })
-
     .get('/playback', {
       schema: pattern.playback
     }, (request, reply) => {
@@ -27,5 +22,20 @@ module.exports = function (fastify, opts, done) {
     .get('/logout', (request, reply) => {
       reply.view('logout.hbs')
     })
-  done()
+
+  const { User } = fastify.sequelize.models
+  User.findAll().then(users => {
+    if (users.length === 0) {
+      fastify.get('/login', {
+      }, (request, reply) => {
+        reply.view('register.hbs')
+      })
+    } else {
+      fastify.get('/login', {
+      }, (request, reply) => {
+        reply.view('login.hbs')
+      })
+    }
+    done()
+  })
 }

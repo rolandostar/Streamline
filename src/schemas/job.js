@@ -1,7 +1,7 @@
 'use strict'
 
 const datePattern = '\\d{4}-\\d{2}-\\d{2} [0-2][0-9]\\:[0-6][0-9]:[0-6][0-9]'
-const timePattern = '[0-2][0-9]\\:[0-6][0-9]:[0-6][0-9]'
+const timePattern = '[0-2][0-9]:[0-6][0-9]:[0-6][0-9]'
 
 const listRequest = {}
 const lookupRequest = {}
@@ -14,7 +14,7 @@ const creationRequest = {
       dateStart: { type: 'string', pattern: datePattern },
       duration: { type: 'string', pattern: timePattern }
     },
-    required: ['title', 'url', 'dateStart', 'duration']
+    required: ['title', 'url', 'dateStart']
   }
 }
 const editRequest = {}

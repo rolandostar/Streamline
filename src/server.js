@@ -40,6 +40,7 @@ fastify
 /* --------------------------- Custom Middlewares --------------------------- */
   .register(require('./database'))
   .register(require('./auth'))
+  .register(require('./packager'))
   .register(require('./encoder'))
   .register(require('./downloader'))
   .register(require('./scheduler'))
