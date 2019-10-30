@@ -23,6 +23,7 @@
     "npm": ">= 6.9.0"
   },
   "scripts": {
+    "postinstall": "node ./scripts/postinstall.js",
     "start": "node -r dotenv/config src/",
     "dev": "nodemon --inspect -r dotenv/config src/",
     "lint": "eslint src/ --config .eslintrc.json",

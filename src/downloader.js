@@ -14,7 +14,7 @@ async function downloader (fastify, opts) {
     const recording = job.Recording ? job.Recording : await job.getRecording()
     // return fastify.encodeVideo(recording)
     const user = await job.getUser()
-    const ytDownloader = './modules/youtube-dl'
+    const ytDownloader = './bin/youtube-dl'
     const dateStart = new Date(job.startDate)
     const durationSeconds = job.duration !== 'None' ? timemarkToSeconds(job.duration) : null
 

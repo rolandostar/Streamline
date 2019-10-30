@@ -5,7 +5,8 @@ storage/*/**
 *.sqlite3
 
 ## Streamline
-bin/
+bin/youtube-dl
+bin/packager**
 
 ## SSL Certs
 *.crt

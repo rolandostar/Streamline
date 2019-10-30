@@ -37,5 +37,11 @@ module.exports = function (fastify, opts, done) {
       })
     }
     done()
-  }).catch(() => { done() })
+  }).catch(() => {
+    fastify.get('/login', {
+    }, (request, reply) => {
+      reply.view('missingDatabase.hbs')
+    })
+    done()
+  })
 }
