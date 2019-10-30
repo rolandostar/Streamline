@@ -37,26 +37,24 @@ function initApp () {
   $('body').css({ cursor: 'default' })
 }
 
-// FIXME seekbar is broken
-// when seeking, it keeps going even if video is buffering
 function initPlayer () {
   var video = document.getElementById('video')
   var player = new shaka.Player(video)
   window.player = player
-  // player.configure({
-  //   streaming: {
-  //     bufferBehind: 1,
-  //     bufferingGoal: 10,
-  //     durationBackoff: 1,
-  //     rebufferingGoal: 2,
-  //     safeSeekOffset: 5
-  //   }
-  // })
+  player.configure({
+    streaming: {
+      bufferBehind: 1,
+      bufferingGoal: 5
+      // durationBackoff: 1,
+      // rebufferingGoal: 2,
+      // safeSeekOffset: 5
+    }
+  })
   player.addEventListener('error', onErrorEvent)
   if (GetParameterValues('debug') === '1') {
     player.load('https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd').catch(onError)
   } else {
-    player.load(storageUri + '/manifest.mpd').catch(onError)
+    player.load(storageUri + '/stream/manifest.mpd').catch(onError)
   }
   player.addEventListener('adaptation', function (e) {
     var tracks = player.getVariantTracks() // all tracks

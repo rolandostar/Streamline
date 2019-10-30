@@ -16,7 +16,7 @@ var spawnSync = require('child_process').spawnSync
 //   win32: 'packager-win.exe',
 // };
 
-var packagerURL = 'https://github.com/google/shaka-packager/releases/latest/download/packager-linux'
+// var packagerURL = 'https://github.com/google/shaka-packager/releases/latest/download/packager-linux'
 var youtubeURL = 'https://github.com/ytdl-org/youtube-dl/releases/latest/download/youtube-dl'
 
 var options = { detached: false, stdio: 'inherit' }
@@ -34,14 +34,14 @@ fs.readdirSync(binFolderPath).forEach(function(childName) {
 });
 
 /* -------------------------------- Packager -------------------------------- */
-var packagerPath = path.resolve(binFolderPath, 'packager-linux')
-var packagerArgs = ['-L', '-o', packagerPath, '--show-error', packagerURL ]
-console.log('Downloading packager')
-var returnValue = spawnSync('curl', packagerArgs, options)
-if (returnValue.error) {
-  process.exit(returnValue.error.code)
-}
-fs.chmodSync(packagerPath, 0755);
+// var packagerPath = path.resolve(binFolderPath, 'packager-linux')
+// var packagerArgs = ['-L', '-o', packagerPath, '--show-error', packagerURL ]
+// console.log('Downloading packager')
+// var returnValue = spawnSync('curl', packagerArgs, options)
+// if (returnValue.error) {
+//   process.exit(returnValue.error.code)
+// }
+// fs.chmodSync(packagerPath, 0755);
 /* ------------------------------- Youtube-DL ------------------------------- */
 var youtubePath = path.resolve(binFolderPath, 'youtube-dl');
 var youtubeArgs = ['-L', '-o', youtubePath, '--show-error', youtubeURL]

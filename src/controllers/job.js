@@ -8,6 +8,7 @@ module.exports.create = async function (request, reply) {
   const { downloadVideo } = this
   const { Recording, Job, User } = this.sequelize.models
   const { title, url, dateStart, duration = 'None' } = request.body
+  if (duration === '00:00:00') return reply.badRequest('Duración debe ser de al menos 1 segundo.')
   const startDate = new Date(dateStart)
   const nowDate = new Date()
   // if (endDate.getTime() <= startDate.getTime()) return reply.badRequest('Tiempo Fin debe ser mayor a Tiempo de Inicio')

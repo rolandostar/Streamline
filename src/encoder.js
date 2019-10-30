@@ -9,10 +9,7 @@ const ffmpeg = require('fluent-ffmpeg')
 async function encoder (fastify, _opts) {
   fastify.decorate('encodeVideo', encodeVideo)
   async function encodeVideo (recording) {
-    const mpdArgs = [
-      'in=audio.mp4,stream=audio,output=audio.mp4',
-      '--mpd_output', 'manifest.mpd'
-    ]
+    const mpdFiles = []
     const user = await recording.getUser()
     fastify.log.warn('Encoding video...')
     const cwd = `storage/${user.id}/${recording.dirName}/`
@@ -28,16 +25,17 @@ async function encoder (fastify, _opts) {
       for (let index = 0; index < encoderConfigs.length; index++) {
         const eConfig = encoderConfigs[index]
         if (height >= eConfig.height) {
-          mpdArgs.push(`in=${eConfig.output},stream=video,output=${eConfig.output}`)
+          mpdFiles.push(eConfig.output)
           await ffmpegWrapper(eConfig.output, meta, eConfig.settings)
         }
       }
     } catch (err) { console.error(err) }
     recording.update({ status: 'PACKAGING' })
-    fastify.log.vdebug(`[PACKAGER] Generating manifest with arguments: \n${require('util').inspect(mpdArgs)}`)
-    await fastify.generateManifest(mpdArgs, cwd)
+    fastify.log.vdebug(`[PACKAGER] Generating manifest with arguments: \n${require('util').inspect(mpdFiles)}`)
+    await fastify.generateManifest(mpdFiles, cwd)
     fastify.log.warn('Finished packaging')
     recording.update({ status: 'READY' })
+    fastify.deleteVideoFiles(cwd)
     fastify.sse.livePush({
       target: recording.id,
       source: 'packager',

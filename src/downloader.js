@@ -54,11 +54,11 @@ async function downloader (fastify, opts) {
       const videoFileName = ytVideoFilename.trim()
       const dir = path.dirname(videoFileName)
       const videoFileNameOnly = path.basename(videoFileName)
-      const mpdArgs = [
-        'in=audio.mp4,stream=audio,output=audio.mp4',
-        `in=${videoFileNameOnly},stream=video,output=${videoFileNameOnly}`,
-        '--mpd_output', 'manifest.mpd'
-      ]
+      // const mpdArgs = [
+      //   'in=audio.mp4,stream=audio,output=audio.mp4',
+      //   `in=${videoFileNameOnly},stream=video,output=${videoFileNameOnly}`,
+      //   '--mpd_output', 'manifest.mpd'
+      // ]
       if (!fs.existsSync(dir)) fs.mkdirSync(dir)
       recording.update({ status: 'DOWNLOADING', dirName: path.basename(dir) })
       fastify.sse.livePush({
@@ -124,7 +124,7 @@ async function downloader (fastify, opts) {
           thumbnailPath: dir
         })
         tg.generateOneByPercent(30, { size: '290x160', filename: 'thumb.png' }).then(async function () {
-          await fastify.generateManifest(mpdArgs, dir)
+          await fastify.generateManifest([videoFileNameOnly], dir)
           job.destroy()
           fastify.sse.livePush({
             target: recording.id,
@@ -162,11 +162,11 @@ async function downloader (fastify, opts) {
         const videoFileName = ytVideoFilename.trim()
         const dir = path.dirname(videoFileName)
         const videoFileNameOnly = path.basename(videoFileName)
-        const mpdArgs = [
-          'in=audio.mp4,stream=audio,output=audio.mp4',
-          `in=${videoFileNameOnly},stream=video,output=${videoFileNameOnly}`,
-          '--mpd_output', 'manifest.mpd'
-        ]
+        // const mpdArgs = [
+        //   'in=audio.mp4,stream=audio,output=audio.mp4',
+        //   `in=${videoFileNameOnly},stream=video,output=${videoFileNameOnly}`,
+        //   '--mpd_output', 'manifest.mpd'
+        // ]
         if (!fs.existsSync(dir)) fs.mkdirSync(dir)
         recording.update({ status: 'DOWNLOADING', dirName: path.basename(dir) })
         fastify.sse.livePush({
@@ -251,7 +251,7 @@ async function downloader (fastify, opts) {
                 })
 
                 tg.generateOneByPercent(30, { size: '290x160', filename: 'thumb.png' }).then(async function () {
-                  await fastify.generateManifest(mpdArgs, dir)
+                  await fastify.generateManifest([videoFileNameOnly], dir)
                   job.destroy()
                   fastify.sse.livePush({
                     target: recording.id,
@@ -270,9 +270,21 @@ async function downloader (fastify, opts) {
         }).catch(function (reason) {
           fastify.log.error(reason)
           recording.update({ status: 'DOWNLOAD_ERROR' })
+          fastify.sse.livePush({
+            target: recording.id,
+            source: 'downloader',
+            type: 'error',
+            subtype: 'download'
+          })
         })
       }).catch(function (reason) {
         fastify.log.error(reason)
+        fastify.sse.livePush({
+          target: recording.id,
+          source: 'downloader',
+          type: 'error',
+          subtype: 'resolve'
+        })
         recording.update({ status: 'RESOLVE_ERROR' })
       })
     })

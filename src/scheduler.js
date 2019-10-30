@@ -16,18 +16,19 @@ function scheduler (fastify, opts, done) {
         case 'PACKAGING':
           console.log(`${recording.title} was interrupted during packaging. Retrying...`)
           const cwd = `./storage/${recording.UserId}/${recording.dirName}/`
-          const mpdArgs = fastify.findArguments(cwd)
+          const mpdArgs = fastify.findVideoFiles(cwd)
           console.log(mpdArgs)
           fastify.generateManifest(mpdArgs, cwd).then(() => {
             fastify.log.warn('Finished packaging')
             recording.update({ status: 'READY' })
+            fastify.deleteVideoFiles(cwd)
             fastify.sse.livePush({
               target: recording.id,
               source: 'packager',
               type: 'done',
               downloadedAt: recording.createdAt
             })
-          })
+          }).catch(err => console.log(err))
           break
         case 'ENCODING':
           console.log(`${recording.title} was interrupted during encoding. Retrying...`)
@@ -71,6 +72,6 @@ function scheduler (fastify, opts, done) {
 module.exports = fp(scheduler, {
   fastify: '>=0.13.1',
   decorators: {
-    fastify: ['chalk', 'downloadVideo', 'encodeVideo', 'findArguments']
+    fastify: ['chalk', 'downloadVideo', 'encodeVideo', 'generateManifest']
   }
 })
