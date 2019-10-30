@@ -96,13 +96,41 @@ $('#new-recording-job').on('submit', function (event) {
 /* ------------------------------ Event Source ------------------------------ */
 const source = new EventSource(`/recording/liveUpdate`)
 source.addEventListener('error', function (e) {
-  if (e.eventPhase === EventSource.CLOSED) source.close()
+  // if (e.eventPhase === EventSource.CLOSED) source.close()
+  console.log(e)
+}, false)
+source.addEventListener('open', function (e) {
+  console.log('OPENED')
 }, false)
 
 source.addEventListener('message', function (e) {
   let data = JSON.parse(e.data)
   console.log(data)
   switch (data.source) {
+    case 'resolver':
+      if (data.type === 'start') {
+        // transition to resolver, was pending
+        elements = $(`[id=${data.target}_link]`)
+        elements.each(function (index) {
+          $(this).children().eq(1).append(`
+          <div class="progress no-margin">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="100" aria-valuemax="100" style="width: 100%"></div>
+          `)
+        })
+        elementsSubtitle = $(`[id=${data.target}_subtitle]`)
+        elementsSubtitle.text('Adquiriendo fuente...')
+      } else if (data.type === 'done') {
+        // transition to downloader, was resolving
+        elements = $(`[id=${data.target}_link]`)
+        elements.each(function (index) {
+          $(this).children().eq(1).children().eq(2).children().replaceWith(`
+          <div id="${data.target + '_progress'}" class="progress-bar bg-warning" style="width:0%"></div>
+          `)
+        })
+        elementsSubtitle = $(`[id=${data.target}_subtitle]`)
+        elementsSubtitle.text('Descargando: 0%')
+      }
+      break
     case 'downloader':
       if (data.type === 'progress') {
         elementsSubtitle = $(`[id=${data.target}_subtitle]`)
@@ -110,7 +138,20 @@ source.addEventListener('message', function (e) {
         elementsSubtitle.text(`Descargando: ` + data.progress + '%')
         elements.css('width', data.progress + '%')
       } else if (data.type === 'done') {
-        // transition to encoder
+        // transition to encoder, was downloading
+        elements = $(`[id=${data.target}_link]`)
+        elements.removeClass('pending')
+        elements.attr('href', `/playback?id=${data.user}&title=${data.dirName}`)
+        elements.each(function (index) {
+          $(this).children().eq(0)
+            .attr('src', `/storage/${data.user}/${data.dirName}/thumb.png`)
+            .addClass('img-greyscale')
+          $(this).children().eq(1).children().eq(1).text('Transcodificando: 360p')
+          $(this).children().eq(1).children().eq(2).children()
+            .removeClass('bg-warning')
+            .addClass('bg-success')
+            .css('width', '0%')
+        })
       }
       break
     case 'encoder':
@@ -120,12 +161,21 @@ source.addEventListener('message', function (e) {
         elements = $(`[id=${data.target}_progress]`)
         elements.css('width', data.progress + '%')
         elements.text(data.progress + '%')
-      } else if (data.type === 'done') {
-        // transition to packager
       }
       break
     case 'packager':
-
+      if (data.type === 'done') {
+        const downloadedAt = new Date(data.downloadedAt)
+        // transition to ready, was encoding
+        elements = $(`[id=${data.target}_link]`)
+        elements.each(function (index) {
+          $(this).children().eq(0)
+            .removeClass('img-greyscale')
+          $(this).children().eq(1).children().last().remove()
+          $(this).children().eq(1).children().last().replaceWith(`
+          <small class="text-light">${downloadedAt.toLocaleString('es-MX')}</small>`)
+        })
+      }
       break
   }
 })
@@ -136,18 +186,18 @@ function addRecordingTo (parentElement, recording) {
   switch (recording.status) {
     case 'PENDING':
       const when = new Date(recording.scheduledFor)
-      html = `<a class="thumbnail pending">
-      <img src="http://localhost:3000/img/pending.png" class="img-responsive">
+      html = `<a id="${recording.id + '_link'}" class="thumbnail pending">
+      <img src="/img/pending.png" class="img-responsive">
       <div class="thumbnail-title">\
-        <h4 id="${recording.id + '_title'}">${recording.title}</h4>
+        <h4>${recording.title}</h4>
         <p id="${recording.id + '_subtitle'}">${when.toLocaleString('es-MX')}</p>
       </div>`
       break
     case 'RESOLVING':
-      html = `<a class="thumbnail pending">
-        <img src="http://localhost:3000/img/pending.png" class="img-responsive">
+      html = `<a id="${recording.id + '_link'}" class="thumbnail pending">
+        <img src="/img/pending.png" class="img-responsive">
         <div class="thumbnail-title">\
-          <h4 id="${recording.id + '_title'}">${recording.title}</h4>
+          <h4>${recording.title}</h4>
           <p id="${recording.id + '_subtitle'}">Adquiriendo fuente...</p>
           <div class="progress no-margin">
           <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="100" aria-valuemax="100" style="width: 100%"></div>
@@ -156,10 +206,10 @@ function addRecordingTo (parentElement, recording) {
         </a>`
       break
     case 'DOWNLOADING':
-      html = `<a class="thumbnail pending">
-        <img src="http://localhost:3000/img/pending.png" class="img-responsive">
+      html = `<a id="${recording.id + '_link'}" class="thumbnail pending">
+        <img src="/img/pending.png" class="img-responsive">
         <div class="thumbnail-title">\
-          <h4 id="${recording.id + '_title'}">${recording.title}</h4>
+          <h4>${recording.title}</h4>
           <p id="${recording.id + '_subtitle'}">Descargando: 0%</p>
           <div class="progress no-margin">
           <div id="${recording.id + '_progress'}" class="progress-bar bg-warning"></div>
@@ -168,11 +218,11 @@ function addRecordingTo (parentElement, recording) {
         </a>`
       break
     case 'ENCODING':
-      html = `<a class="thumbnail" href="http://localhost:3000/playback?id=${recording.user}&title=${recording.dirName}">
-      <img src="http://localhost:3000/storage/${recording.user}/${recording.dirName}/thumb.png" class="img-responsive img-greyscale">
+      html = `<a id="${recording.id + '_link'}" class="thumbnail" href="/playback?id=${recording.user}&title=${recording.dirName}">
+      <img src="/storage/${recording.user}/${recording.dirName}/thumb.png" class="img-responsive img-greyscale">
       <div class="thumbnail-title">\
-        <h4 id="${recording.id + '_title'}">${recording.title}</h4>
-        <p id="${recording.id + '_subtitle'}">${recording.status}</p>
+        <h4>${recording.title}</h4>
+        <p id="${recording.id + '_subtitle'}">Transcodificando: 360p</p>
         <div class="progress no-margin">
           <div id="${recording.id + '_progress'}" class="progress-bar bg-success">0%</div>
       </div>
@@ -181,18 +231,18 @@ function addRecordingTo (parentElement, recording) {
       break
     case 'READY':
       const downloadedAt = new Date(recording.startDate)
-      html = `<a class="thumbnail" href="http://localhost:3000/playback?id=${recording.user}&title=${recording.dirName}">
-        <img src="http://localhost:3000/storage/${recording.user}/${recording.dirName}/thumb.png" class="img-responsive">
+      html = `<a id="${recording.id + '_link'}" class="thumbnail" href="/playback?id=${recording.user}&title=${recording.dirName}">
+        <img src="/storage/${recording.user}/${recording.dirName}/thumb.png" class="img-responsive">
         <div class="thumbnail-title">\
-          <h4 id="${recording.id + '_title'}">${recording.title}</h4>
+          <h4>${recording.title}</h4>
           <small class="text-light">${downloadedAt.toLocaleString('es-MX')}</small>
         </div>
         </div>
         </a>`
       break
     default:
-      html = `<a class="thumbnail pending">
-        <img src="http://localhost:3000/img/videoError.png" class="img-responsive">
+      html = `<a id="${recording.id + '_link'}" class="thumbnail pending">
+        <img src="/img/videoError.png" class="img-responsive">
         <div class="thumbnail-title text-center">\
           <p>${recording.title}</p>
           <p>${recording.status}</p>

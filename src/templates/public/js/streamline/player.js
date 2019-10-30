@@ -12,7 +12,7 @@ function GetParameterValues (param) {
 
 var id = GetParameterValues('id')
 var title = GetParameterValues('title')
-var storageUri = `http://localhost:3000/storage/${id}/${title}`
+var storageUri = `/storage/${id}/${title}`
 
 $(document).idle({
   onIdle: function () {
@@ -37,7 +37,7 @@ function initApp () {
   $('body').css({ cursor: 'default' })
 }
 
-//FIXME seekbar is broken
+// FIXME seekbar is broken
 // when seeking, it keeps going even if video is buffering
 function initPlayer () {
   var video = document.getElementById('video')

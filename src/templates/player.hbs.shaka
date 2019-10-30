@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Shaka Player compiled library: -->
+    <script src="dist/shaka-player.compiled.js"></script>
+    <!-- Your application source: -->
+    <script src="myapp.js"></script>
+  </head>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/shaka-player.compiled.js"></script>
+  <body>
+    <video id="video"
+           width="640"
+           poster="//shaka-player-demo.appspot.com/assets/poster.jpg"
+           controls autoplay></video>
+  </body>
+  <script>
+
+    function GetParameterValues (param) {
+  var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&')
+  for (var i = 0; i < url.length; i++) {
+    var p = url[i].split('=')
+    if (p[0] === param) {
+      return p[1]
+    }
+  }
+}
+
+var id = GetParameterValues('id')
+var title = GetParameterValues('title')
+var storageUri = `/storage/${id}/${title}`
+
+function initApp() {
+  $('#video').attr('poster', storageUri + '/thumb.png')
+  shaka.polyfill.installAll()
+  if (shaka.Player.isBrowserSupported()) initPlayer()
+  else console.error('Browser not supported!')
+  $('body').css({ cursor: 'default' })
+}
+
+function initPlayer() {
+  // Create a Player instance.
+  var video = document.getElementById('video');
+  var player = new shaka.Player(video);
+
+  // Attach player to the window to make it easy to access in the JS console.
+  window.player = player;
+
+  // Listen for error events.
+  player.addEventListener('error', onErrorEvent);
+  if (GetParameterValues('debug') === '1') {
+    player.load('https://dash.akamaized.net/akamai/bbb_30fps/bbb_30fps.mpd').catch(onError)
+  } else {
+    player.load(storageUri + '/manifest.mpd').catch(onError)
+  }
+}
+
+function onErrorEvent(event) {
+  // Extract the shaka.util.Error object from the event.
+  onError(event.detail);
+}
+
+function onError(error) {
+  // Log the error.
+  console.error('Error code', error.code, 'object', error);
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</html>

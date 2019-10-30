@@ -27,10 +27,5 @@ module.exports = function (fastify, opts, done) {
     .get('/logout', (request, reply) => {
       reply.view('logout.hbs')
     })
-
-  .get('/sse-test', (request, reply) => {
-    reply.view('sse.hbs')
-  })
-
   done()
 }

@@ -61,14 +61,14 @@ fastify
     // let index = 0
     // setInterval(() => {
     //   if (index >= 100) index = 0
-    //   fastify.sse.reportProgress({
+    //   fastify.sse.livePush({
     //     target: 21,
     //     source: 'encoder',
     //     type: 'progress',
     //     quality: '1080p',
     //     progress: index++
     //   })
-    //   fastify.sse.reportProgress({
+    //   fastify.sse.livePush({
     //     target: 20,
     //     source: 'downloader',
     //     type: 'progress',

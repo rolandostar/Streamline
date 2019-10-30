@@ -22,7 +22,7 @@ async function encoder (fastify, _opts) {
     const meta = {
       input,
       cwd,
-      reportProgress: fastify.sse.reportProgress,
+      livePush: fastify.sse.livePush,
       target: recording.id
     }
     recording.update({ status: 'ENCODING' })
@@ -37,15 +37,19 @@ async function encoder (fastify, _opts) {
     } catch (err) { console.error(err) }
     // REVIEW Separate module?
     recording.update({ status: 'PACKAGING' })
+    fastify.log.vdebug(`[PACKAGER] Generating manifest with arguments: \n${require('util').inspect(mpdArgs)}`)
     childProcess.execFile(path.join(__dirname, '../bin/packager-linux'), mpdArgs, { cwd }, (error, _stdout, _stderr) => {
       if (error) fastify.log.error(error)
-      else fastify.log.warn('Finished packaging')
-      recording.update({ status: 'READY' })
-      fastify.sse.reportProgress({
-        target: recording.id,
-        source: 'packager',
-        type: 'done'
-      })
+      else {
+        fastify.log.warn('Finished packaging')
+        recording.update({ status: 'READY' })
+        fastify.sse.livePush({
+          target: recording.id,
+          source: 'packager',
+          type: 'done',
+          downloadedAt: recording.createdAt
+        })
+      }
     })
   }
 }
@@ -82,14 +86,16 @@ function ffmpegWrapper (output, meta, params) {
         console.log(meta.logPrefix + 'Spawned Ffmpeg with command: ' + commandLine)
       })
       .on('progress', function (progress) {
-        console.log(meta.logPrefix + 'Processing: ' + progress.percent + '% done')
-        meta.reportProgress({
-          target: meta.target,
-          source: meta.name,
-          type: 'progress',
-          quality: params.qualityName,
-          progress: progress.percent.toFixed(1)
-        })
+        if (progress.percent) {
+          console.log(meta.logPrefix + 'Processing: ' + progress.percent + '% done')
+          meta.livePush({
+            target: meta.target,
+            source: meta.name,
+            type: 'progress',
+            quality: params.qualityName,
+            progress: progress.percent.toFixed(1)
+          })
+        }
       })
       .on('error', function (err, _stdout, _stderr) {
         console.log('Cannot process video: ' + err.message)

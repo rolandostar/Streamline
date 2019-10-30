@@ -52,7 +52,10 @@ module.exports.search = async function (request, reply) {
         [Op.like]: '%' + request.query.query + '%'
       }
     },
-    include: Job
+    include: {
+      model: Job,
+      paranoid: false
+    }
   })
   reply.send(formatPayload(recordings))
 }

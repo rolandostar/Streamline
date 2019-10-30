@@ -4,7 +4,7 @@ const fp = require('fastify-plugin')
 const EventEmitter = require('events')
 function scheduler (fastify, opts, done) {
   const sse = {
-    reportProgress: function (p) {
+    livePush: function (p) {
       sse.eventEmitter.emit('message', p)
     },
     eventEmitter: new EventEmitter()

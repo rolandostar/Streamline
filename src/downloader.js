@@ -22,6 +22,11 @@ async function downloader (fastify, opts) {
     fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] "${recording.title}"\n      URL: ${job.source}\n Duración: ${durationSeconds} segundos\n  Usuario: ${user.username}`)
     fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Attempting to find dual track urls...`)
     recording.update({ status: 'RESOLVING' })
+    fastify.sse.livePush({
+      target: recording.id,
+      source: 'resolver',
+      type: 'start'
+    })
     Promise.all([
       execFile(ytDownloader, [
         `${job.source}`,
@@ -55,15 +60,24 @@ async function downloader (fastify, opts) {
       ]
       if (!fs.existsSync(dir)) fs.mkdirSync(dir)
       recording.update({ status: 'DOWNLOADING', dirName: path.basename(dir) })
+      fastify.sse.livePush({
+        target: recording.id,
+        source: 'resolver',
+        type: 'done'
+      })
       Promise.all([
         new Promise((resolve, reject) => {
           ffmpeg(ytVideoUrl.trim())
+            .outputOptions([
+              '-acodec copy',
+              '-vcodec copy'
+            ])
             .duration(durationSeconds)
             .on('start', function (commandLine) { fastify.log.vdebug(`=> FFMPEG Video(only) ${fastify.chalk.magenta('command')}: ${commandLine}`) })
             .on('progress', function (progress) {
               const currentProgress = ((timemarkToSeconds(progress.timemark) * 100) / durationSeconds).toFixed(1)
               fastify.log.vdebug(`FFMPEG FFMPEG Video(only) progress: ${currentProgress}%`)
-              fastify.sse.reportProgress({
+              fastify.sse.livePush({
                 target: recording.id,
                 source: 'downloader',
                 type: 'progress',
@@ -82,6 +96,10 @@ async function downloader (fastify, opts) {
         }),
         new Promise((resolve, reject) => {
           ffmpeg(ytAudioUrl.trim())
+            .outputOptions([
+              '-acodec copy',
+              '-vcodec copy'
+            ])
             .duration(durationSeconds)
             .on('start', function (commandLine) { fastify.log.vdebug(`=> FFMPEG Audio(only) ${fastify.chalk.magenta('command')}: ${commandLine}`) })
             .on('progress', function (progress) {
@@ -106,6 +124,13 @@ async function downloader (fastify, opts) {
         tg.generateOneByPercent(30, { size: '290x160', filename: 'thumb.png' })
         require('child_process').execFileSync(path.join(__dirname, '../bin/packager-linux'), mpdArgs, { cwd: dir })
         job.destroy()
+        fastify.sse.livePush({
+          target: recording.id,
+          source: 'downloader',
+          type: 'done',
+          user: user.id,
+          dirName: path.basename(dir)
+        })
         fastify.encodeVideo(recording)
       }).catch(function (reason) {
         fastify.log.error(reason)
@@ -113,7 +138,6 @@ async function downloader (fastify, opts) {
       })
     }).catch(function (reason) {
       fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Attempting to find single track url...`)
-      // REVIEW : Possible audio sync issue
       Promise.all([
         execFile(ytDownloader, [
           '--get-url',
@@ -141,16 +165,24 @@ async function downloader (fastify, opts) {
         ]
         if (!fs.existsSync(dir)) fs.mkdirSync(dir)
         recording.update({ status: 'DOWNLOADING', dirName: path.basename(dir) })
+        fastify.sse.livePush({
+          target: recording.id,
+          source: 'resolver',
+          type: 'done'
+        })
         Promise.all([
           new Promise((resolve, reject) => {
             ffmpeg(ytAVUrl.trim())
+              .outputOptions([
+                '-acodec copy',
+                '-vcodec copy'
+              ])
               .duration(durationSeconds)
-              .noAudio()
               .on('start', function (commandLine) { fastify.log.vdebug(`=> FFMPEG Audio+Video (Video Portion) ${fastify.chalk.magenta('command')}: ${commandLine}`) })
               .on('progress', function (progress) {
                 const currentProgress = ((timemarkToSeconds(progress.timemark) * 100) / durationSeconds).toFixed(1)
                 fastify.log.vdebug(`FFMPEG Audio+Video(Video Portion) progress: ${currentProgress}%`)
-                fastify.sse.reportProgress({
+                fastify.sse.livePush({
                   target: recording.id,
                   source: 'downloader',
                   type: 'progress',
@@ -167,34 +199,68 @@ async function downloader (fastify, opts) {
               })
               .save(videoFileName)
           }),
-          new Promise((resolve, reject) => {
-            ffmpeg(ytAVUrl.trim())
-              .duration(durationSeconds)
+          // new Promise((resolve, reject) => {
+          //   ffmpeg(ytAVUrl.trim())
+          //     .duration(durationSeconds)
+          //     .noVideo()
+          //     .on('start', function (commandLine) { fastify.log.vdebug(`=> FFMPEG Audio+Video (Audio Portion) ${fastify.chalk.magenta('command')}: ${commandLine}`) })
+          //     .on('progress', function (progress) {
+          //       const currentProgress = (timemarkToSeconds(progress.timemark) * 100) / durationSeconds
+          //       fastify.log.vdebug(`FFMPEG Audio+Video(Audio Portion) progress: \t${currentProgress}%`)
+          //     })
+          //     .on('error', function (err, stdout, stderr) {
+          //       fastify.log.error(`=> FFMPEG Audio+Video (Audio Portion) error: ${err.message}`)
+          //       reject(err)
+          //     })
+          //     .on('end', function (stdout, stderr) {
+          //       fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Audio+Video (Audio Portion) Finished download`)
+          //       resolve()
+          //     })
+          //     .save(dir + '/audio.mp4')
+          // })
+        ]).then(function (values) {
+          ffmpeg(videoFileName)
+              .outputOptions([
+                '-acodec copy',
+                '-vcodec copy'
+              ])
               .noVideo()
               .on('start', function (commandLine) { fastify.log.vdebug(`=> FFMPEG Audio+Video (Audio Portion) ${fastify.chalk.magenta('command')}: ${commandLine}`) })
               .on('progress', function (progress) {
-                const currentProgress = (timemarkToSeconds(progress.timemark) * 100) / durationSeconds
-                fastify.log.vdebug(`FFMPEG Audio+Video(Audio Portion) progress: \t${currentProgress}%`)
+                const currentProgress = ((timemarkToSeconds(progress.timemark) * 100) / durationSeconds).toFixed(1)
+                fastify.log.vdebug(`FFMPEG Audio+Video(Audio Portion) progress: ${currentProgress}%`)
+                fastify.sse.livePush({
+                  target: recording.id,
+                  source: 'downloader',
+                  type: 'progress',
+                  progress: currentProgress
+                })
               })
               .on('error', function (err, stdout, stderr) {
-                fastify.log.error(`=> FFMPEG Audio+Video (Audio Portion) error: ${err.message}`)
-                reject(err)
+                fastify.log.error(`=> FFMPEG Audio+Video error: ${err.message}`)
               })
-              .on('end', function (stdout, stderr) {
+              .on('end', async function (stdout, stderr) {
                 fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Audio+Video (Audio Portion) Finished download`)
-                resolve()
+                const tg = new ThumbnailGenerator({
+                  sourcePath: videoFileName,
+                  thumbnailPath: dir
+                })
+                require('child_process').execFileSync(path.join(__dirname, '../bin/packager-linux'), mpdArgs, { cwd: dir })
+                tg.generateOneByPercent(30, { size: '290x160', filename: 'thumb.png' }) // Wadsworth constant
+                  .then(function (params) {
+                  job.destroy()
+                  fastify.sse.livePush({
+                    target: recording.id,
+                    source: 'downloader',
+                    type: 'done',
+                    user: user.id,
+                    dirName: path.basename(dir)
+                  })
+                  fastify.encodeVideo(recording)
+                  })
               })
               .save(dir + '/audio.mp4')
-          })
-        ]).then(function (values) {
-          const tg = new ThumbnailGenerator({
-            sourcePath: videoFileName,
-            thumbnailPath: dir
-          })
-          tg.generateOneByPercent(30, { size: '290x160', filename: 'thumb.png' }) // Wadsworth constant
-          require('child_process').execFileSync(path.join(__dirname, '../bin/packager-linux'), mpdArgs, { cwd: dir })
-          job.destroy()
-          fastify.encodeVideo(recording)
+
         }).catch(function (reason) {
           fastify.log.error(reason)
           recording.update({ status: 'DOWNLOAD_ERROR' })
