@@ -31,7 +31,7 @@ async function downloader (fastify, opts) {
       execFile(ytDownloader, [
         `${job.source}`,
         '--get-url',
-        '-f', 'mp4[height<=?1080]/bestvideo[height<=?1080]'
+        '-f', 'bestvideo[height<=?1080]'
       ]),
       execFile(ytDownloader, [
         `${job.source}`,
@@ -41,7 +41,7 @@ async function downloader (fastify, opts) {
       execFile(ytDownloader, [
         `${job.source}`,
         '--get-filename',
-        '-f', 'mp4[height<=?1080]/bestvideo[height<=?1080]',
+        '-f', 'bestvideo[height<=?1080]',
         '--restrict-filenames',
         '-o', `storage/${user.id}/${dateStart.getTime() / 1000}-%(title)s/original-%(height)s.%(ext)s`
       ])
@@ -145,14 +145,14 @@ async function downloader (fastify, opts) {
       Promise.all([
         execFile(ytDownloader, [
           '--get-url',
-          '-f', 'mp4[height<=?1080]/best[height<=?1080]',
+          '-f', 'best[height<=?1080]',
           `${job.source}`
         ]),
         execFile(ytDownloader, [
           '--get-filename',
           '--restrict-filenames',
           '-o', `storage/${user.id}/${dateStart.getTime() / 1000}-%(title)s/original-%(height)s.%(ext)s`,
-          '-f', 'mp4[height<=?1080]/best[height<=?1080]',
+          '-f', 'best[height<=?1080]',
           `${job.source}`
         ])
       ]).then(function (values) {

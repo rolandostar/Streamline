@@ -65,14 +65,16 @@ function ffmpegWrapper (output, meta, params) {
     '-c:v libx264',
     '-profile:v ' + params.profile,
     '-level:v ' + params.level,
-    '-x264-params scenecut=0:open_gop=0:min-keyint=72:keyint=72',
+    '-g 72',
+    '-keyint_min 72',
+    '-sc_threshold 0',
     '-minrate ' + params.bitrate,
     '-maxrate ' + params.bitrate,
     '-bufsize ' + params.bitrate,
     '-b:v ' + params.bitrate
   ]
   return new Promise((resolve, reject) => {
-    meta.logPrefix = meta.logPrefix || '[ENCODER]'
+    meta.logPrefix = meta.logPrefix + ' ' || '[ENCODER] '
     meta.name = meta.name || 'encoder'
     ffmpeg(path.join(meta.cwd, meta.input))
       .outputOptions(options)

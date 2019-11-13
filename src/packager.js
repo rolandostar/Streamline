@@ -36,10 +36,9 @@ function shakaPackager (fastify, opts, done) {
 
 function mp4BoxPackager (fastify, opts, done) {
   const mpdArgs = [
-    '-dash', '5000',
+    '-dash', '3000',
     '-rap',
     '-profile', 'dashavc264:onDemand',
-    '-frag', '2000',
     '-out',
     './stream/manifest.mpd',
     'audio.mp4'

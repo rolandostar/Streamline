@@ -44,10 +44,13 @@ function initPlayer () {
   player.configure({
     streaming: {
       bufferBehind: 1,
-      bufferingGoal: 5
+      bufferingGoal: 3,
       // durationBackoff: 1,
       // rebufferingGoal: 2,
       // safeSeekOffset: 5
+    },
+    abr: {
+      switchInterval: 1
     }
   })
   player.addEventListener('error', onErrorEvent)

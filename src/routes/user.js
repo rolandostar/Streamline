@@ -8,5 +8,9 @@ module.exports = function (fastify, opts, done) {
     preValidation: fastify.authenticate,
     schema: pattern.updateRequest
   }, ctrl.update)
+
+  fastify.post('/', {
+    schema: pattern.creationRequest
+  }, ctrl.create)
   done()
 }

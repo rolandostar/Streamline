@@ -21,7 +21,13 @@ module.exports = {
   database: sequelizerc[validatedData.NODE_ENV],
   jwtSecret: validatedData.JWT_SECRET,
   issuer: validatedData.JWT_ISSUER,
-  logger: { redact: ['req.headers.authorization'] },
+  logger: {
+    redact: ['req.headers.authorization'],
+    customLevels: {
+      vdebug: 33,
+      verbose: 35
+    }
+  },
   encoderConfigs: [
     {
       height: 360,

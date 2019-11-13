@@ -24,8 +24,8 @@
   },
   "scripts": {
     "postinstall": "node scripts/postinstall.js",
-    "start": "node -r dotenv/config src/",
-    "dev": "nodemon --ignore storage/ --inspect -r dotenv/config src/",
+    "start": "NODE_ENV=production node -r dotenv/config src/",
+    "dev": "NODE_ENV=development nodemon --ignore storage/ --inspect -r dotenv/config src/",
     "lint": "eslint src/ --config .eslintrc.json",
     "db": "node src/util/dbAdmin.js"
   },

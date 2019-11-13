@@ -1,5 +1,7 @@
 'use strict'
 
+const passwordPattern = `[A-Z,a-z,0-9,!,\`,",?,$,?,%,^,&,*,(,),_,-,+,=,{,\\[,},\\],:,;,@,',~,#,\\|,\\,<,\\,,>,\\.,\\?,\\/,]{6,30}`
+
 const updateRequest = {
   body: {
     type: 'object',
@@ -21,6 +23,18 @@ const updateRequest = {
   }
 }
 
+const creationRequest = {
+  body: {
+    type: 'object',
+    properties: {
+      username: { type: 'string', maxLength: 15, minLength: 3 },
+      password: { type: 'string', pattern: passwordPattern }
+    },
+    additionalProperties: false
+  }
+}
+
 module.exports = {
-  updateRequest
+  updateRequest,
+  creationRequest
 }

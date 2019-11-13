@@ -2,6 +2,27 @@
 
 const bcrypt = require('bcryptjs')
 
+module.exports.create = async function (request, reply) {
+  const { User } = this.sequelize.models
+  const userCount = await User.count()
+  console.log(userCount)
+  if (userCount > 0) {
+    // check auth
+    this.authenticate(request, reply, function (error) {
+console.log('done authing')
+      console.log(request.user)
+      console.log(error)
+      if (error) throw (error)
+    })
+  }
+  const admin = await User.findOne({
+    attributes: ['id', 'createdAt'],
+    orderBy: [[ 'createdAt', 'ASC' ]]
+  })
+  console.log(admin.id)
+  reply.send()
+}
+
 module.exports.update = async function (request, reply) {
   const { User } = this.sequelize.models
   if (request.body.username) {
