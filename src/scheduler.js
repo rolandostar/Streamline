@@ -21,7 +21,6 @@ function scheduler (fastify, opts, done) {
           fastify.generateManifest(mpdArgs, cwd).then(() => {
             fastify.log.warn('Finished packaging')
             recording.update({ status: 'READY' })
-            fastify.deleteVideoFiles(cwd)
             fastify.sse.livePush({
               target: recording.id,
               source: 'packager',

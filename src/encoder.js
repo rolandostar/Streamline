@@ -22,11 +22,40 @@ async function encoder (fastify, _opts) {
     }
     recording.update({ status: 'ENCODING' })
     try {
-      for (let index = 0; index < encoderConfigs.length; index++) {
+      fastify.generateManifest(['audio.mp4', filename], cwd)
+      // Encode audio, then video, and for each video encoded, generate a new manifest.
+      // console.log(getAudioFile(cwd))
+      // ffmpeg(path.join(cwd, getAudioFile(cwd)))
+      //   .audioCodec('aac')
+      //   .on('start', commandLine => {
+      //     console.log('[ENCODER] Spawned Ffmpeg with command: ' + commandLine)
+      //   })
+      //   .on('progress', function (progress) {
+      //     if (progress.percent) {
+      //       console.log('[ENCODER] Processing: ' + progress.percent + '% done')
+      //       meta.livePush({
+      //         target: meta.target,
+      //         source: meta.name,
+      //         type: 'progress',
+      //         quality: 'audio',
+      //         progress: progress.percent.toFixed(1)
+      //       })
+      //     }
+      //   })
+      //   .on('error', function (err, _stdout, _stderr) {
+      //     console.log('Cannot process video: ' + err.message)
+      //   })
+      //   .on('end', function (_stdout, _stderr) {
+      //     console.log('audio transcoding succeeded!')
+      //     fastify.generateManifest(['audio.mp4', filename], cwd)
+      //   })
+      //   .save(path.join(cwd, 'audio.mp4'))
+      for (let index = encoderConfigs.length - 1; index >= 0; index--) {
         const eConfig = encoderConfigs[index]
         if (height >= eConfig.height) {
           mpdFiles.push(eConfig.output)
           await ffmpegWrapper(eConfig.output, meta, eConfig.settings)
+          await fastify.generateManifest(fastify.findVideoFiles(cwd), cwd)
         }
       }
     } catch (err) { console.error(err) }
@@ -45,6 +74,14 @@ async function encoder (fastify, _opts) {
   }
 }
 
+function getAudioFile (cwd) {
+  const array = fs.readdirSync(cwd)
+  for (let index = 0; index < array.length; index++) {
+    const file = array[index]
+    if (file.includes('audio')) return file
+  }
+}
+
 function readHeightFromFile (cwd) {
   const array = fs.readdirSync(cwd)
   for (let index = 0; index < array.length; index++) {
@@ -60,14 +97,13 @@ function readHeightFromFile (cwd) {
 
 function ffmpegWrapper (output, meta, params) {
   let options = [
-    '-c:a aac',
     '-vf ' + params.filter,
-    '-c:v libx264',
     '-profile:v ' + params.profile,
     '-level:v ' + params.level,
-    '-g 72',
-    '-keyint_min 72',
-    '-sc_threshold 0',
+    '-x264-params scenecut=0:open_gop=0:min-keyint=72:keyint=72',
+    // '-g 72',
+    // '-keyint_min 72',
+    // '-sc_threshold 0',
     '-minrate ' + params.bitrate,
     '-maxrate ' + params.bitrate,
     '-bufsize ' + params.bitrate,
@@ -77,6 +113,7 @@ function ffmpegWrapper (output, meta, params) {
     meta.logPrefix = meta.logPrefix + ' ' || '[ENCODER] '
     meta.name = meta.name || 'encoder'
     ffmpeg(path.join(meta.cwd, meta.input))
+      .videoCodec('libx264')
       .outputOptions(options)
       .on('start', function (commandLine) {
         console.log(meta.logPrefix + 'Spawned Ffmpeg with command: ' + commandLine)
