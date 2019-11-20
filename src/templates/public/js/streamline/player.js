@@ -232,35 +232,35 @@ pip.addEventListener('click', async e => {
   }
 })
 
-let qs = document.querySelector('.qs')
-qs.addEventListener('click', async e => {
-  console.log(player.getBufferedInfo())
-  player.configure({ abr: { enabled: false } })
-  // player.load(storageUri + '/manifest.mpd').then(function () {
-  //   var track = player.getVariantTracks().filter(function (track) {
-  //     return track.width === 1920
-  //   }).pop()
-  //   if (track) {
-  //     console.log('Selecting variant track ', track)
-  //     player.selectVariantTrack(track, true)
-  //   }
-  // })
+// let qs = document.querySelector('.qs')
+// qs.addEventListener('click', async e => {
+//   console.log(player.getBufferedInfo())
+//   player.configure({ abr: { enabled: false } })
+//   // player.load(storageUri + '/manifest.mpd').then(function () {
+//   //   var track = player.getVariantTracks().filter(function (track) {
+//   //     return track.width === 1920
+//   //   }).pop()
+//   //   if (track) {
+//   //     console.log('Selecting variant track ', track)
+//   //     player.selectVariantTrack(track, true)
+//   //   }
+//   // })
 
-  var track = player.getVariantTracks().filter(function (track) {
-    return track.height === 360
-  }).pop()
-  console.log(track)
-  if (track) {
-    console.log('Selecting variant track ', track)
-    player.selectVariantTrack(track, true)
-    console.log(player.getBufferedInfo())
-  }
+//   var track = player.getVariantTracks().filter(function (track) {
+//     return track.height === 360
+//   }).pop()
+//   console.log(track)
+//   if (track) {
+//     console.log('Selecting variant track ', track)
+//     player.selectVariantTrack(track, true)
+//     console.log(player.getBufferedInfo())
+//   }
 
-  // player.selectVideoTrack(trackId)
-  // const tracks = this.player.getVariantTracks()
-  // console.log(tracks[2])
-  // this.player.selectVariantTrack(tracks[2], true)
-})
+//   // player.selectVideoTrack(trackId)
+//   // const tracks = this.player.getVariantTracks()
+//   // console.log(tracks[2])
+//   // this.player.selectVariantTrack(tracks[2], true)
+// })
 
 // EVENT LISTENERS
 // $(document).mousemove(activity)
