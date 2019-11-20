@@ -63,13 +63,13 @@ async function downloader (fastify, opts) {
             .audioCodec('copy')
             .on('start', function (commandLine) { fastify.log.vdebug(`=> FFMPEG Video ${fastify.chalk.magenta('command')}: ${commandLine}`) })
             .on('progress', (progress) => {
-              console.log(progress)
-              const currentProgress = ((timemarkToSeconds(progress.timemark) * 100) / durationSeconds).toFixed(1)
+              const currentProgress = progress.percent ||
+                ((timemarkToSeconds(progress.timemark) * 100) / durationSeconds)
               fastify.sse.livePush({
                 target: recording.id,
                 source: 'downloader',
                 type: 'progress',
-                progress: currentProgress
+                progress: currentProgress.toFixed(1)
               })
             })
             .on('error', function (err, stdout, stderr) {
@@ -97,9 +97,9 @@ async function downloader (fastify, opts) {
           const cmd = ffmpeg(audio.url)
             .audioCodec('aac')
             .on('start', function (commandLine) { fastify.log.vdebug(`=> FFMPEG Audio ${fastify.chalk.magenta('command')}: ${commandLine}`) })
-            .on('progress', (progress) => {
-              console.log(progress)
-            })
+            // .on('progress', (progress) => {
+            //   console.log(progress)
+            // })
             .on('error', function (err, stdout, stderr) {
               fastify.log.error(`=> FFMPEG Audio error: ${err.message}`)
               fastify.log.error(stderr)
