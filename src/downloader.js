@@ -35,7 +35,9 @@ async function downloader (fastify, opts) {
         '--restrict-filename',
         // '-f', 'bestvideo[height<=1080]+bestaudio',
         '-o', `storage/${user.id}/${dateStart.getTime() / 1000}-%(title)s/original-%(height)s.%(ext)s`
-      ])
+      ], {
+        maxBuffer: 1024 * 1024 * 1024
+      })
     ]).then(([{ stdout: content }]) => {
       const info = JSON.parse(content)
       const dir = path.dirname(info._filename)
