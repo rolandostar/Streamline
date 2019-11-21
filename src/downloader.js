@@ -56,6 +56,7 @@ async function downloader (fastify, opts) {
       // Report DB
       recording.update({ status: 'DOWNLOADING', dirName: path.basename(dir) })
       // Execute
+      let videoDone = false
       Promise.all([
         new Promise((resolve, reject) => {
           const cmd = ffmpeg(video.url.trim())
@@ -78,6 +79,7 @@ async function downloader (fastify, opts) {
               reject(err)
             })
             .on('end', function (stdout, stderr) {
+              videoDone = true
               fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Video Finished download`)
               if (info.requested_formats) return resolve()
               // Extract audio from video
@@ -97,9 +99,18 @@ async function downloader (fastify, opts) {
           const cmd = ffmpeg(audio.url)
             .audioCodec('aac')
             .on('start', function (commandLine) { fastify.log.vdebug(`=> FFMPEG Audio ${fastify.chalk.magenta('command')}: ${commandLine}`) })
-            // .on('progress', (progress) => {
-            //   console.log(progress)
-            // })
+            .on('progress', (progress) => {
+              if (videoDone) {
+                const currentProgress = progress.percent ||
+                ((timemarkToSeconds(progress.timemark) * 100) / durationSeconds)
+                fastify.sse.livePush({
+                  target: recording.id,
+                  source: 'downloader',
+                  type: 'progress',
+                  progress: currentProgress.toFixed(1)
+                })
+              }
+            })
             .on('error', function (err, stdout, stderr) {
               fastify.log.error(`=> FFMPEG Audio error: ${err.message}`)
               fastify.log.error(stderr)

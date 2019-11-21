@@ -120,7 +120,7 @@ function ffmpegWrapper (output, meta, params) {
       })
       .on('progress', function (progress) {
         if (progress.percent) {
-          console.log(meta.logPrefix + 'Processing: ' + progress.percent + '% done')
+          // console.log(meta.logPrefix + 'Processing: ' + progress.percent + '% done')
           meta.livePush({
             target: meta.target,
             source: meta.name,
