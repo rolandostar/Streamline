@@ -8,6 +8,7 @@ const util = require('util')
 const execFile = util.promisify(require('child_process').execFile)
 const ThumbnailGenerator = require('video-thumbnail-generator').default
 const ffmpeg = require('fluent-ffmpeg')
+const chance = require('chance')()
 
 async function downloader (fastify, opts) {
   fastify.decorate('downloadVideo', async (job) => {
@@ -27,21 +28,22 @@ async function downloader (fastify, opts) {
       source: 'resolver',
       type: 'start'
     })
-
+    const dirName = `${new Date().getTime()}-${chance.guid()}`
     Promise.all([
       execFile(ytDownloader, [
         job.source,
         '-j',
         '--restrict-filename',
         // '-f', 'bestvideo[height<=1080]+bestaudio',
-        '-o', `storage/${user.id}/${dateStart.getTime() / 1000}-%(title)s/original-%(height)s.%(ext)s`
+        '-o', `storage/${user.id}/${dirName}/original-%(height)s.%(ext)s`
       ], {
         maxBuffer: 1024 * 1024 * 1024
       })
     ]).then(([{ stdout: content }]) => {
       const info = JSON.parse(content)
-      const dir = path.dirname(info._filename)
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir)
+      // const dir = path.dirname(info._filename)
+      if (!fs.existsSync(`storage/${user.id}/${dirName}`))
+        fs.mkdirSync(`storage/${user.id}/${dirName}`)
       // Report console
       if (info.requested_formats) {
         fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Dual stream available. Begin download...`)
@@ -56,7 +58,7 @@ async function downloader (fastify, opts) {
         type: 'done'
       })
       // Report DB
-      recording.update({ status: 'DOWNLOADING', dirName: path.basename(dir) })
+      recording.update({ status: 'DOWNLOADING', dirName })
       // Execute
       let videoDone = false
       Promise.all([
@@ -85,14 +87,14 @@ async function downloader (fastify, opts) {
               fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Video Finished download`)
               if (info.requested_formats) return resolve()
               // Extract audio from video
-              ffmpeg(dir + '/original-' + video.height + '.' + video.ext)
+              ffmpeg(`storage/${user.id}/${dirName}/original-` + video.height + '.' + video.ext)
                 .noVideo()
                 .audioCodec('aac')
                 .on('end', () => { resolve() })
-                .save(dir + '/audio.mp4')
+                .save(`storage/${user.id}/${dirName}/audio.mp4`)
             })
           if (durationSeconds) cmd.duration(durationSeconds)
-          cmd.output(dir + '/original-' + video.height + '.' + video.ext)
+          cmd.output(`storage/${user.id}/${dirName}/original-` + video.height + '.' + video.ext)
           cmd.run()
         }),
         new Promise((resolve, reject) => {
@@ -122,14 +124,14 @@ async function downloader (fastify, opts) {
               fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Audio Finished download`)
               resolve()
             })
-            .output(dir + '/audio.mp4')
+            .output(`storage/${user.id}/${dirName}/audio.mp4`)
           if (durationSeconds) cmd.duration(durationSeconds)
           cmd.run()
         })
       ]).then(values => {
         const tg = new ThumbnailGenerator({
-          sourcePath: dir + '/original-' + video.height + '.' + video.ext,
-          thumbnailPath: dir
+          sourcePath: `storage/${user.id}/${dirName}/original-` + video.height + '.' + video.ext,
+          thumbnailPath: `storage/${user.id}/${dirName}`
         })
         tg.generateOneByPercent(30, { size: '290x160', filename: 'thumb.png' }).then(async function () {
           job.destroy()
@@ -138,7 +140,7 @@ async function downloader (fastify, opts) {
             source: 'downloader',
             type: 'done',
             user: user.id,
-            dirName: path.basename(dir)
+            dirName
           })
           fastify.encodeVideo(recording)
         })

@@ -14,6 +14,18 @@ module.exports.create = async function (request, reply) {
   // if (endDate.getTime() <= startDate.getTime()) return reply.badRequest('Tiempo Fin debe ser mayor a Tiempo de Inicio')
   // if (nowDate.getTime() >= endDate.getTime()) return reply.badRequest('Tiempo Fin debe ser mayor al Tiempo Actual')
   const user = await User.findOne({ where: { username: request.user.username } })
+
+  const existing = await Job.findAll({
+    where: {
+      source: url,
+      startDate,
+      duration,
+      UserId: user.id
+    },
+    paranoid: false
+  })
+  if (existing.length !== 0) return reply.badRequest('Tarea de grabación ya fue programada.')
+
   const recording = await Recording.create({
     title,
     status: 'PENDING',
