@@ -94,14 +94,13 @@ async function downloader (fastify, opts) {
                 .save(`storage/${user.id}/${dirName}/audio.mp4`)
             })
           if (durationSeconds) cmd.duration(durationSeconds)
-          cmd.output(`storage/${user.id}/${dirName}/original-` + video.height + '.' + video.ext)
+          cmd.output(`storage/${user.id}/${dirName}/original-${video.height}.${video.ext}`)
           cmd.run()
         }),
         new Promise((resolve, reject) => {
           if (!info.requested_formats || !info.requested_formats[1]) resolve()
           const audio = info.requested_formats[1]
           const cmd = ffmpeg(audio.url)
-            .audioCodec('aac')
             .on('start', function (commandLine) { fastify.log.vdebug(`=> FFMPEG Audio ${fastify.chalk.magenta('command')}: ${commandLine}`) })
             .on('progress', (progress) => {
               if (videoDone) {
@@ -121,16 +120,31 @@ async function downloader (fastify, opts) {
               reject(err)
             })
             .on('end', function (stdout, stderr) {
-              fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Audio Finished download`)
-              resolve()
+              if (audio.ext === 'mp4') return resolve()
+              ffmpeg(`storage/${user.id}/${dirName}/audio.${audio.ext}`)
+                .noVideo()
+                .audioCodec('aac')
+                .on('progress', (progress) => {
+                  fastify.sse.livePush({
+                    target: recording.id,
+                    source: 'downloader',
+                    type: 'progress',
+                    progress: progress.percent.toFixed(1)
+                  })
+                })
+                .on('end', () => {
+                  fastify.log.verbose(`[${fastify.chalk.green('DOWNLOAD')}] Audio Finished download`)
+                  resolve()
+                })
+                .save(`storage/${user.id}/${dirName}/audio.mp4`)
             })
-            .output(`storage/${user.id}/${dirName}/audio.mp4`)
+            .output(`storage/${user.id}/${dirName}/audio.${audio.ext}`)
           if (durationSeconds) cmd.duration(durationSeconds)
           cmd.run()
         })
       ]).then(values => {
         const tg = new ThumbnailGenerator({
-          sourcePath: `storage/${user.id}/${dirName}/original-` + video.height + '.' + video.ext,
+          sourcePath: `storage/${user.id}/${dirName}/original-${video.height}.${video.ext}`,
           thumbnailPath: `storage/${user.id}/${dirName}`
         })
         tg.generateOneByPercent(30, { size: '290x160', filename: 'thumb.png' }).then(async function () {

@@ -40,8 +40,8 @@ module.exports.list = async function (request, reply) {
   })
   reply.send(formatPayload(recordings))
 }
-module.exports.lookup = function (request, reply) { reply.send() }
-module.exports.edit = function (request, reply) { reply.send() }
+// module.exports.lookup = function (request, reply) { reply.send() }
+// module.exports.edit = function (request, reply) { reply.send() }
 module.exports.delete = function (request, reply) { reply.send() }
 module.exports.search = async function (request, reply) {
   const { Recording, Job } = this.sequelize.models
